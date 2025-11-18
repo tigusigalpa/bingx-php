@@ -1,0 +1,31 @@
+{
+  "name": "tigusigalpa/bingx-php",
+  "description": "BingX Swap V2 API client for PHP with Laravel 8-12 integration",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {"name":"Igor Sazonov","email":"sovletig@gmail.com"}
+  ],
+  "require": {
+    "php": "^7.4|^8.0|^8.1|^8.2",
+    "guzzlehttp/guzzle": "^7.8",
+    "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tigusigalpa\\BingX\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Tigusigalpa\\BingX\\BingxServiceProvider"
+      ],
+      "aliases": {
+        "BingX": "Tigusigalpa\\BingX\\Facades\\Bingx"
+      }
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

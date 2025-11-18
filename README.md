@@ -55,6 +55,88 @@ BINGX_BASE_URI=https://open-api.bingx.com
 BINGX_SIGNATURE_ENCODING=base64
 ```
 
+## 🧩 Использование без Laravel (чистый PHP)
+
+Пакет можно использовать как обычную Composer-библиотеку, без Laravel.
+
+### Установка через Composer
+
+Если пакет опубликован на Packagist:
+
+```bash
+composer require tigusigalpa/bingx-php
+```
+
+Если вы используете локальный `path`‑репозиторий:
+
+```jsonc
+// composer.json
+{
+  "require": {
+    "tigusigalpa/bingx-php": "*"
+  },
+  "repositories": [
+    { "type": "path", "url": "public_html/packages/bingx-php" }
+  ]
+}
+```
+
+Затем:
+
+```bash
+composer update tigusigalpa/bingx-php --prefer-source
+```
+
+### Инициализация клиента в чистом PHP
+
+```php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+use Tigusigalpa\BingX\BingxClient;
+use Tigusigalpa\BingX\Http\BaseHttpClient;
+
+$apiKey    = 'YOUR_API_KEY';
+$apiSecret = 'YOUR_API_SECRET';
+$baseUri   = 'https://open-api.bingx.com';
+
+// Базовый HTTP‑клиент
+$http = new BaseHttpClient($apiKey, $apiSecret, $baseUri);
+
+// Основной клиент BingX
+$bingx = new BingxClient($http);
+
+// Market data
+$symbols = $bingx->market()->getFuturesSymbols();
+$price   = $bingx->market()->getLatestPrice('BTC-USDT');
+
+// Account
+$balance     = $bingx->account()->getBalance();
+$leverage    = $bingx->account()->getLeverage('BTC-USDT');
+$setLeverage = $bingx->account()->setLeverage('BTC-USDT', 'BOTH', 10);
+
+// Trading
+$order = $bingx->trade()->spotMarketBuy('BTC-USDT', 0.001);
+```
+
+### OrderBuilder в чистом PHP
+
+```php
+$order = $bingx->trade()->order()
+    ->futures()
+    ->symbol('BTC-USDT')
+    ->buy()
+    ->long()
+    ->type('LIMIT')
+    ->margin(100)
+    ->price(50000)
+    ->leverage(10)
+    ->stopLossPercent(5)
+    ->takeProfitPercent(15)
+    ->execute();
+```
+
 ## 📚 Использование
 
 ### 🏪 Market Service - Рыночные данные

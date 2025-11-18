@@ -222,14 +222,261 @@ class MarketService
      * @param string $symbol Trading symbol
      * @param string $interval Time interval
      * @param int $limit Number of records
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
      * @return array
      */
-    public function getPremiumIndexKlines(string $symbol, string $interval = '1h', int $limit = 100): array
+    public function getPremiumIndexKlines(string $symbol, string $interval = '1h', int $limit = 100, ?int $startTime = null, ?int $endTime = null): array
     {
-        return $this->client->request('GET', '/openApi/swap/v2/market/premiumIndexKline', [
+        $params = [
             'symbol' => $symbol,
             'interval' => $interval,
             'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/market/premiumIndexKline', $params);
+    }
+
+    /**
+     * Get aggregate trades (recent trades list)
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-1000)
+     * @param int|null $fromId Trade ID to fetch from
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getAggregateTrades(string $symbol, int $limit = 500, ?int $fromId = null, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($fromId) $params['fromId'] = $fromId;
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/market/aggTrades', $params);
+    }
+
+    /**
+     * Get recent trades list
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-1000)
+     * @return array
+     */
+    public function getRecentTrades(string $symbol, int $limit = 500): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v2/market/trades', [
+            'symbol' => $symbol,
+            'limit' => $limit
         ]);
+    }
+
+    /**
+     * Get spot aggregate trades
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-1000)
+     * @param int|null $fromId Trade ID to fetch from
+     * @return array
+     */
+    public function getSpotAggregateTrades(string $symbol, int $limit = 500, ?int $fromId = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($fromId) $params['fromId'] = $fromId;
+
+        return $this->client->request('GET', '/openApi/spot/v1/market/aggTrades', $params);
+    }
+
+    /**
+     * Get spot recent trades list
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-1000)
+     * @return array
+     */
+    public function getSpotRecentTrades(string $symbol, int $limit = 500): array
+    {
+        return $this->client->request('GET', '/openApi/spot/v1/market/trades', [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ]);
+    }
+
+    /**
+     * Get server time
+     * 
+     * @return array Server time information
+     */
+    public function getServerTime(): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v2/market/time');
+    }
+
+    /**
+     * Get spot server time
+     * 
+     * @return array Server time information
+     */
+    public function getSpotServerTime(): array
+    {
+        return $this->client->request('GET', '/openApi/spot/v1/market/time');
+    }
+
+    /**
+     * Get continuous contract kline data
+     * 
+     * @param string $symbol Trading symbol
+     * @param string $interval Time interval
+     * @param int $limit Number of records
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getContinuousKlines(string $symbol, string $interval = '1h', int $limit = 100, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'interval' => $interval,
+            'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/market/continuousKline', $params);
+    }
+
+    /**
+     * Get index price kline data
+     * 
+     * @param string $symbol Trading symbol
+     * @param string $interval Time interval
+     * @param int $limit Number of records
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getIndexPriceKlines(string $symbol, string $interval = '1h', int $limit = 100, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'interval' => $interval,
+            'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/market/indexPriceKline', $params);
+    }
+
+    /**
+     * Get top long/short ratio
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-30)
+     * @return array
+     */
+    public function getTopLongShortRatio(string $symbol, int $limit = 10): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v2/market/topLongShortRatio', [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ]);
+    }
+
+    /**
+     * Get top traders position ratio
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-30)
+     * @return array
+     */
+    public function getTopTradersPositionRatio(string $symbol, int $limit = 10): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v2/market/topTraderPositionRatio', [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ]);
+    }
+
+    /**
+     * Get historical top long/short ratio
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-500)
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getHistoricalTopLongShortRatio(string $symbol, int $limit = 500, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/market/topLongShortAccount', $params);
+    }
+
+    /**
+     * Get top traders long/short ratio
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-500)
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getTopTradersLongShortRatio(string $symbol, int $limit = 500, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/market/topLongShortPosition', $params);
+    }
+
+    /**
+     * Get basis data
+     * 
+     * @param string $symbol Trading symbol
+     * @param string $contractType Contract type (CURRENT_QUARTER, NEXT_QUARTER, PERPETUAL)
+     * @param int $limit Number of records (1-500)
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getBasis(string $symbol, string $contractType = 'PERPETUAL', int $limit = 100, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'contractType' => $contractType,
+            'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/market/basis', $params);
     }
 }

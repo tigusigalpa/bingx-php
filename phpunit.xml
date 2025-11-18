@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         executionOrder="depends,defects"
+         requireCoverageMetadata="true"
+         beStrictAboutCoverageMetadata="true"
+         beStrictAboutOutputDuringTests="true"
+         failOnRisky="true"
+         failOnWarning="true">
+    
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <groups>
+        <exclude>
+            <group>dangerous</group>
+        </exclude>
+    </groups>
+
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
+
+    <php>
+        <env name="BINGX_API_KEY" value=""/>
+        <env name="BINGX_API_SECRET" value=""/>
+        <env name="BINGX_BASE_URI" value="https://open-api.bingx.com"/>
+        <env name="BINGX_TEST_SYMBOL" value="BTC-USDT"/>
+        <env name="BINGX_TEST_SYMBOL_SPOT" value="BTC-USDT"/>
+    </php>
+</phpunit>

@@ -607,4 +607,384 @@ class TradeService
             'type' => $type
         ]);
     }
+
+    /**
+     * Get historical trades (market trades)
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-1000)
+     * @param int|null $fromId Trade ID to fetch from
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getHistoricalTrades(string $symbol, int $limit = 500, ?int $fromId = null, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($fromId) $params['fromId'] = $fromId;
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/historicalTrades', $params);
+    }
+
+    /**
+     * Get commission rates for symbols from API
+     * 
+     * @param string|null $symbol Trading symbol (optional)
+     * @return array
+     */
+    public function getApiCommissionRates(?string $symbol = null): array
+    {
+        $params = [];
+        if ($symbol) $params['symbol'] = $symbol;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/commissionRates', $params);
+    }
+
+    /**
+     * Get account trades (recent trades list)
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-1000)
+     * @param int|null $fromId Trade ID to fetch from
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getAccountTrades(string $symbol, int $limit = 500, ?int $fromId = null, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($fromId) $params['fromId'] = $fromId;
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/accountTrades', $params);
+    }
+
+    /**
+     * Get position mode
+     * 
+     * @return array Position mode information
+     */
+    public function getPositionMode(): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v2/trade/positionMode');
+    }
+
+    /**
+     * Set position mode
+     * 
+     * @param string $mode Position mode (HEDGE_MODE, ONE_WAY_MODE)
+     * @return array
+     */
+    public function setPositionMode(string $mode): array
+    {
+        return $this->client->request('POST', '/openApi/swap/v2/trade/positionMode', [
+            'mode' => $mode
+        ]);
+    }
+
+    /**
+     * Get position side
+     * 
+     * @return array Position side information
+     */
+    public function getPositionSide(): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v2/trade/positionSide');
+    }
+
+    /**
+     * Set position side
+     * 
+     * @param string $positionSide Position side (BOTH, LONG, SHORT)
+     * @return array
+     */
+    public function setPositionSide(string $positionSide): array
+    {
+        return $this->client->request('POST', '/openApi/swap/v2/trade/positionSide', [
+            'positionSide' => $positionSide
+        ]);
+    }
+
+    /**
+     * Get order modification history
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-500)
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getOrderModificationHistory(string $symbol, int $limit = 100, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/orderModificationHistory', $params);
+    }
+
+    /**
+     * Get leverage bracket
+     * 
+     * @param string|null $symbol Trading symbol (optional)
+     * @return array
+     */
+    public function getLeverageBracket(?string $symbol = null): array
+    {
+        $params = [];
+        if ($symbol) $params['symbol'] = $symbol;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/leverageBracket', $params);
+    }
+
+    /**
+     * Get adl quantile
+     * 
+     * @param string $symbol Trading symbol
+     * @return array
+     */
+    public function getAdlQuantile(string $symbol): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v2/trade/adlQuantile', [
+            'symbol' => $symbol
+        ]);
+    }
+
+    /**
+     * Get force orders
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-100)
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getForceOrders(string $symbol, int $limit = 100, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/forceOrders', $params);
+    }
+
+    /**
+     * Get open interest statistics
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-500)
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getOpenInterestStatistics(string $symbol, int $limit = 500, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/openInterestStatistics', $params);
+    }
+
+    /**
+     * Get open interest
+     * 
+     * @param string $symbol Trading symbol
+     * @return array
+     */
+    public function getOpenInterest(string $symbol): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v2/trade/openInterest', [
+            'symbol' => $symbol
+        ]);
+    }
+
+    /**
+     * Get open interest history
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-500)
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getOpenInterestHistory(string $symbol, int $limit = 500, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/openInterestHistory', $params);
+    }
+
+    /**
+     * Get average price
+     * 
+     * @param string $symbol Trading symbol
+     * @param string $side Order side (BUY, SELL)
+     * @param string $type Order type (MARKET, LIMIT)
+     * @param float|null $quantity Order quantity
+     * @param float|null $price Order price (required for LIMIT orders)
+     * @return array
+     */
+    public function getAvgPrice(string $symbol, string $side, string $type, ?float $quantity = null, ?float $price = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'side' => $side,
+            'type' => $type
+        ];
+
+        if ($quantity !== null) $params['quantity'] = $quantity;
+        if ($price !== null) $params['price'] = $price;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/avgPrice', $params);
+    }
+
+    /**
+     * Get recent trades list
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $limit Number of records (1-1000)
+     * @param int|null $fromId Trade ID to fetch from
+     * @return array
+     */
+    public function getRecentTradesList(string $symbol, int $limit = 500, ?int $fromId = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit
+        ];
+
+        if ($fromId !== null) $params['fromId'] = $fromId;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/recentTradesList', $params);
+    }
+
+    /**
+     * Get max open orders count
+     * 
+     * @return array
+     */
+    public function getMaxOpenOrders(): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v2/trade/maxOpenOrders');
+    }
+
+    /**
+     * Set max open orders count
+     * 
+     * @param int $maxOpenOrders Maximum number of open orders
+     * @return array
+     */
+    public function setMaxOpenOrders(int $maxOpenOrders): array
+    {
+        return $this->client->request('POST', '/openApi/swap/v2/trade/maxOpenOrders', [
+            'maxOpenOrders' => $maxOpenOrders
+        ]);
+    }
+
+    /**
+     * Get notional and leverage brackets
+     * 
+     * @param string|null $symbol Trading symbol (optional)
+     * @return array
+     */
+    public function getNotionalAndLeverageBrackets(?string $symbol = null): array
+    {
+        $params = [];
+        if ($symbol) $params['symbol'] = $symbol;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/notionalAndLeverageBracket', $params);
+    }
+
+    /**
+     * Get income history
+     * 
+     * @param string $symbol Trading symbol (optional)
+     * @param string $incomeType Income type (COMMISSION, FUNDING_FEE, etc.)
+ * @param int $limit Number of records (1-1000)
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getIncomeHistory(?string $symbol = null, string $incomeType = 'ALL', int $limit = 100, ?int $startTime = null, ?int $endTime = null): array
+    {
+        $params = [
+            'incomeType' => $incomeType,
+            'limit' => $limit
+        ];
+
+        if ($symbol) $params['symbol'] = $symbol;
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v2/trade/income', $params);
+    }
+
+    /**
+     * Get leverage bracket for symbol
+     * 
+     * @param string $symbol Trading symbol
+     * @return array
+     */
+    public function getLeverageBracketForSymbol(string $symbol): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v2/trade/leverageBracket', [
+            'symbol' => $symbol
+        ]);
+    }
+
+    /**
+     * Cancel and replace order
+     * 
+     * @param string $symbol Trading symbol
+     * @param string $cancelOrderId Order ID to cancel
+     * @param string $side Order side (BUY, SELL)
+     * @param string $type Order type (MARKET, LIMIT)
+     * @param float|null $quantity Order quantity
+     * @param float|null $price Order price (required for LIMIT orders)
+     * @return array
+     */
+    public function cancelAndReplaceOrder(string $symbol, string $cancelOrderId, string $side, string $type, ?float $quantity = null, ?float $price = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'cancelOrderId' => $cancelOrderId,
+            'side' => $side,
+            'type' => $type
+        ];
+
+        if ($quantity !== null) $params['quantity'] = $quantity;
+        if ($price !== null) $params['price'] = $price;
+
+        return $this->client->request('POST', '/openApi/swap/v2/trade/cancelReplace', $params);
+    }
 }

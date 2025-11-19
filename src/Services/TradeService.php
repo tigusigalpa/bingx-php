@@ -410,31 +410,82 @@ class TradeService
     }
 
     /**
-     * Cancel an order
+     * Cancel an existing order
      * 
      * @param string $symbol Trading symbol
-     * @param string $orderId Order ID
+     * @param string $orderId Order ID to cancel
      * @return array
      */
-    public function cancelOrder(string $symbol, string $orderId): array
-    {
-        return $this->client->request('POST', '/openApi/swap/v2/trade/cancelOrder', [
-            'symbol' => $symbol,
-            'orderId' => $orderId
-        ]);
+    public function cancelOrder(
+        string $symbol,
+        ?string $orderId = null,
+        ?string $clientOrderId = null,
+        ?int $timestamp = null,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'symbol'    => $symbol,
+            'timestamp' => $timestamp ?? (int) (microtime(true) * 1000),
+        ];
+
+        // В соответствии с документацией можно передавать либо orderId, либо clientOrderId
+        if ($orderId !== null) {
+            $params['orderId'] = $orderId;
+        }
+
+        if ($clientOrderId !== null) {
+            $params['clientOrderId'] = $clientOrderId;
+        }
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('DELETE', '/openApi/swap/v2/trade/order', $params);
     }
 
     /**
-     * Cancel all open orders
-     * 
-     * @param string $symbol Trading symbol
-     * @return array
+     * Cancel all open orders for the current account.
+     *
+     * Обертка над эндпоинтом DELETE /openApi/swap/v2/trade/allOpenOrders.
+     * Все параметры, кроме timestamp, являются опциональными и добавляются
+     * в запрос только если переданы.
+     *
+     * Примеры использования:
+     * - cancelAllOrders()                       // отменить все открытые ордера
+     * - cancelAllOrders(null, 'BTC-USDT')       // отменить все ордера по символу
+     * - cancelAllOrders(null, null, 'LIMIT')    // отменить все лимитные ордера
+     *
+     * @param int|null    $timestamp  Пользовательский timestamp в мс;
+     *                                если не указан, будет сгенерирован автоматически.
+     * @param string|null $symbol     Торговый символ (например, "BTC-USDT"), опционально.
+     * @param string|null $type       Тип ордера (LIMIT, MARKET, LIMIT_MAKER и т.п.), опционально.
+     * @param int|null    $recvWindow Допустимое окно времени запроса в мс, опционально.
+     * @return array                  Ответ BingX API.
      */
-    public function cancelAllOrders(string $symbol): array
-    {
-        return $this->client->request('POST', '/openApi/swap/v2/trade/cancelAllOrders', [
-            'symbol' => $symbol
-        ]);
+    public function cancelAllOrders(
+        ?int $timestamp = null,
+        ?string $symbol = null,
+        ?string $type = null,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'timestamp' => $timestamp ?? (int) (microtime(true) * 1000),
+        ];
+
+        if ($symbol !== null) {
+            $params['symbol'] = $symbol;
+        }
+
+        if ($type !== null) {
+            $params['type'] = $type;
+        }
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('DELETE', '/openApi/swap/v2/trade/allOpenOrders', $params);
     }
 
     /**
@@ -444,12 +495,29 @@ class TradeService
      * @param array $orderIds Array of order IDs
      * @return array
      */
-    public function cancelBatchOrders(string $symbol, array $orderIds): array
-    {
-        return $this->client->request('POST', '/openApi/swap/v2/trade/cancelBatchOrders', [
-            'symbol' => $symbol,
-            'orderIds' => json_encode($orderIds)
-        ]);
+    public function cancelBatchOrders(
+        string $symbol,
+        array $orderIds,
+        ?array $clientOrderIds = null,
+        ?int $timestamp = null,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'symbol'    => $symbol,
+            // API ожидает список ID через запятую
+            'orderIds'  => implode(',', $orderIds),
+            'timestamp' => $timestamp ?? (int) (microtime(true) * 1000),
+        ];
+
+        if ($clientOrderIds !== null && count($clientOrderIds) > 0) {
+            $params['clientOrderIds'] = implode(',', $clientOrderIds);
+        }
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('DELETE', '/openApi/swap/v2/trade/batchOrders', $params);
     }
 
     /**

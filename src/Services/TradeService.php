@@ -407,14 +407,264 @@ class TradeService
     }
 
     /**
+     * Modify an existing LIMIT order quantity.
+     *
+     * Обертка над эндпоинтом POST /openApi/swap/v2/trade/amend.
+     * Согласно документации, можно идентифицировать ордер по orderId
+     * или clientOrderId (должен быть указан хотя бы один), а также задать
+     * новый объем quantity. Остальные параметры ордера не изменяются.
+     *
+     * @param string      $symbol        Торговый символ (например, "BTC-USDT").
+     * @param float       $quantity      Новый объем ордера.
+     * @param string|null $orderId       ID ордера (опционально, если указан clientOrderId).
+     * @param string|null $clientOrderId Пользовательский ID ордера (опционально, если указан orderId).
+     * @param int|null    $timestamp     Кастомный timestamp в мс; по умолчанию генерируется автоматически.
+     * @param int|null    $recvWindow    Допустимое окно времени запроса в мс (опционально).
+     * @return array                      Ответ BingX API.
+     */
+    public function modifyOrder(
+        string $symbol,
+        float $quantity,
+        ?string $orderId = null,
+        ?string $clientOrderId = null,
+        ?int $timestamp = null,
+        ?int $recvWindow = null
+    ): array {
+        if ($orderId === null && $clientOrderId === null) {
+            throw new \InvalidArgumentException('modifyOrder requires either orderId or clientOrderId');
+        }
+
+        if ($quantity <= 0) {
+            throw new \InvalidArgumentException('Quantity must be greater than 0');
+        }
+
+        $params = [
+            'symbol'    => $symbol,
+            'quantity'  => $quantity,
+            'timestamp' => $timestamp ?? (int) (microtime(true) * 1000),
+        ];
+
+        if ($orderId !== null) {
+            $params['orderId'] = $orderId;
+        }
+
+        if ($clientOrderId !== null) {
+            $params['clientOrderId'] = $clientOrderId;
+        }
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('POST', '/openApi/swap/v1/trade/amend', $params);
+    }
+
+    /**
      * Create a test order (won't execute in real market)
      * 
-     * @param array $params Order parameters (same as createOrder)
-     * @return array Test order response
+     * @param string      $symbol
+     * @param string      $side
+     * @param string      $type
+     * @param float       $quantity
+     * @param string|null $positionSide
+     * @param float|null  $price
+     * @param string|null $timeInForce
+     * @param float|null  $stopPrice
+     * @param string|null $clientOrderId
+     * @param float|null  $priceRate
+     * @param string|null $workingType
+     * @param int|null    $timestamp
+     * @param int|null    $recvWindow
+     * @return array
      */
-    public function createTestOrder(array $params): array
-    {
+    public function createTestOrder(
+        string $symbol,
+        string $side,
+        string $type,
+        float $quantity,
+        ?string $positionSide = null,
+        ?float $price = null,
+        ?string $timeInForce = null,
+        ?float $stopPrice = null,
+        ?string $clientOrderId = null,
+        ?float $priceRate = null,
+        ?string $workingType = null,
+        ?int $timestamp = null,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'symbol'    => $symbol,
+            'side'      => $side,
+            'type'      => $type,
+            'quantity'  => $quantity,
+            'timestamp' => $timestamp ?? (int) (microtime(true) * 1000),
+        ];
+        
+        if ($positionSide !== null) {
+            $params['positionSide'] = $positionSide;
+        }
+        if ($price !== null) {
+            $params['price'] = $price;
+        }
+        if ($timeInForce !== null) {
+            $params['timeInForce'] = $timeInForce;
+        }
+        if ($stopPrice !== null) {
+            $params['stopPrice'] = $stopPrice;
+        }
+        if ($clientOrderId !== null) {
+            $params['clientOrderId'] = $clientOrderId;
+        }
+        if ($priceRate !== null) {
+            $params['priceRate'] = $priceRate;
+        }
+        if ($workingType !== null) {
+            $params['workingType'] = $workingType;
+        }
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+        
         return $this->client->request('POST', '/openApi/swap/v2/trade/order/test', $params);
+    }
+
+    /**
+     * Close all positions for a symbol
+     * 
+     * @param string $symbol Trading symbol
+     * @param int|null $timestamp Request timestamp
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function closeAllPositions(
+        string $symbol,
+        ?int $timestamp = null,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'symbol'    => $symbol,
+            'timestamp' => $timestamp ?? (int) (microtime(true) * 1000),
+        ];
+        
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+        
+        return $this->client->request('POST', '/openApi/swap/v2/trade/closeAllPositions', $params);
+    }
+
+    /**
+     * Query margin type for a symbol
+     * 
+     * @param string $symbol Trading symbol
+     * @param int|null $timestamp Request timestamp
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function getMarginType(
+        string $symbol,
+        ?int $timestamp = null,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'symbol'    => $symbol,
+            'timestamp' => $timestamp ?? (int) (microtime(true) * 1000),
+        ];
+        
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+        
+        return $this->client->request('GET', '/openApi/swap/v2/trade/marginType', $params);
+    }
+
+    /**
+     * Change margin type for a symbol
+     * 
+     * @param string $symbol Trading symbol
+     * @param string $marginType Margin type (ISOLATED or CROSSED)
+     * @param int|null $timestamp Request timestamp
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function changeMarginType(
+        string $symbol,
+        string $marginType,
+        ?int $timestamp = null,
+        ?int $recvWindow = null
+    ): array {
+        if (!in_array($marginType, ['ISOLATED', 'CROSSED'])) {
+            throw new \InvalidArgumentException('Margin type must be ISOLATED or CROSSED');
+        }
+        
+        $params = [
+            'symbol'     => $symbol,
+            'marginType' => $marginType,
+            'timestamp'  => $timestamp ?? (int) (microtime(true) * 1000),
+        ];
+        
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+        
+        return $this->client->request('POST', '/openApi/swap/v2/trade/marginType', $params);
+    }
+
+    /**
+     * Query leverage for a symbol
+     * 
+     * @param string $symbol Trading symbol
+     * @param int|null $timestamp Request timestamp
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function getLeverage(
+        string $symbol,
+        ?int $timestamp = null,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'symbol'    => $symbol,
+            'timestamp' => $timestamp ?? (int) (microtime(true) * 1000),
+        ];
+        
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+        
+        return $this->client->request('GET', '/openApi/swap/v2/trade/leverage', $params);
+    }
+
+    /**
+     * Set leverage for a symbol
+     * 
+     * @param string $symbol Trading symbol
+     * @param int $leverage Leverage multiplier
+     * @param int|null $timestamp Request timestamp
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function setLeverage(
+        string $symbol,
+        int $leverage,
+        ?int $timestamp = null,
+        ?int $recvWindow = null
+    ): array {
+        if ($leverage < 1 || $leverage > 125) {
+            throw new \InvalidArgumentException('Leverage must be between 1 and 125');
+        }
+        
+        $params = [
+            'symbol'    => $symbol,
+            'leverage'  => $leverage,
+            'timestamp' => $timestamp ?? (int) (microtime(true) * 1000),
+        ];
+        
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+        
+        return $this->client->request('POST', '/openApi/swap/v2/trade/leverage', $params);
     }
 
     /**
@@ -661,21 +911,6 @@ class TradeService
         }
 
         return $this->client->request('POST', '/openApi/swap/v2/trade/leverage', $params);
-    }
-
-    /**
-     * Change margin type
-     * 
-     * @param string $symbol Trading symbol
-     * @param string $marginType Margin type (ISOLATED, CROSSED)
-     * @return array
-     */
-    public function changeMarginType(string $symbol, string $marginType): array
-    {
-        return $this->client->request('POST', '/openApi/swap/v2/trade/changeMarginType', [
-            'symbol' => $symbol,
-            'marginType' => $marginType
-        ]);
     }
 
     /**

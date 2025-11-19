@@ -617,6 +617,43 @@ $modificationHistory = Bingx::trade()->getOrderModificationHistory('BTC-USDT', 1
     strtotime('2024-01-01') * 1000,
     strtotime('2024-01-02') * 1000
 );
+
+// Изменение существующего LIMIT-ордера (только quantity)
+// По orderId
+$modified = Bingx::trade()->modifyOrder(
+    'BTC-USDT',    // symbol
+    0.002,         // new quantity
+    orderId: '1234567890'
+);
+
+// Или по clientOrderId
+$modifiedByClientId = Bingx::trade()->modifyOrder(
+    'BTC-USDT',
+    0.003,
+    orderId: null,
+    clientOrderId: 'my-order-001'
+);
+
+// Тестовый ордер (не исполняется в реальном рынке)
+$testOrder = Bingx::trade()->createTestOrder(
+    'BTC-USDT',           // symbol
+    'BUY',                // side
+    'LIMIT',              // type
+    0.001,                // quantity
+    positionSide: 'LONG', // positionSide
+    price: 50000          // price
+);
+
+// Закрытие всех позиций по символу
+$closedPositions = Bingx::trade()->closeAllPositions('BTC-USDT');
+
+// Управление типом маржи
+$marginType = Bingx::trade()->getMarginType('BTC-USDT');
+Bingx::trade()->changeMarginType('BTC-USDT', 'ISOLATED'); // или 'CROSSED'
+
+// Управление плечом
+$leverage = Bingx::trade()->getLeverage('BTC-USDT');
+Bingx::trade()->setLeverage('BTC-USDT', 10);
 ```
 
 #### 📈 Открытый интерес

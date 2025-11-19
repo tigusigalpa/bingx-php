@@ -270,6 +270,98 @@ class OrderBuilder
         return $this;
     }
 
+    public function clientOrderId(string $clientOrderId): self
+    {
+        $this->orderData['clientOrderId'] = $clientOrderId;
+        return $this;
+    }
+
+    public function timeInForce(string $timeInForce): self
+    {
+        $this->orderData['timeInForce'] = $timeInForce;
+        return $this;
+    }
+
+    public function reduceOnly(bool $reduceOnly = true): self
+    {
+        $this->orderData['reduceOnly'] = $reduceOnly;
+        return $this;
+    }
+
+    public function closePosition(bool $closePosition = true): self
+    {
+        $this->orderData['closePosition'] = $closePosition;
+        return $this;
+    }
+
+    public function stopPrice(float $price): self
+    {
+        if ($price <= 0) {
+            $this->addError("Stop price must be greater than 0");
+            return $this;
+        }
+
+        $this->orderData['stopPrice'] = $price;
+        return $this;
+    }
+
+    public function stopGuaranteed(bool $flag = true): self
+    {
+        $this->orderData['stopGuaranteed'] = $flag;
+        return $this;
+    }
+
+    public function priceRate(float $rate): self
+    {
+        if ($rate <= 0) {
+            $this->addError("Price rate must be greater than 0");
+            return $this;
+        }
+
+        $this->orderData['priceRate'] = $rate;
+        return $this;
+    }
+
+    public function workingType(string $workingType): self
+    {
+        $this->orderData['workingType'] = $workingType;
+        return $this;
+    }
+
+    public function newOrderRespType(string $type): self
+    {
+        $this->orderData['newOrderRespType'] = $type;
+        return $this;
+    }
+
+    public function positionId(int $positionId): self
+    {
+        if ($positionId <= 0) {
+            $this->addError("Position ID must be greater than 0");
+            return $this;
+        }
+
+        $this->orderData['positionId'] = $positionId;
+        return $this;
+    }
+
+    public function timestamp(int $timestamp): self
+    {
+        $this->orderData['timestamp'] = $timestamp;
+        return $this;
+    }
+
+    public function recvWindow(int $recvWindow): self
+    {
+        if ($recvWindow <= 0) {
+            $this->addError("recvWindow must be greater than 0");
+            return $this;
+        }
+
+        $this->orderData['recvWindow'] = $recvWindow;
+        return $this;
+    }
+
     /**
      * Validate order data
      */
@@ -305,6 +397,28 @@ class OrderBuilder
             if (!isset($this->orderData['margin']) && !isset($this->orderData['quantity'])) {
                 $this->addError("Futures orders require margin or quantity");
             }
+        }
+
+        // reduceOnly / closePosition / positionId are only valid for futures orders
+        if ($this->orderType !== 'futures') {
+            if (isset($this->orderData['reduceOnly'])) {
+                $this->addError("reduceOnly is only available for futures orders");
+            }
+            if (isset($this->orderData['closePosition'])) {
+                $this->addError("closePosition is only available for futures orders");
+            }
+            if (isset($this->orderData['positionId'])) {
+                $this->addError("positionId is only available for futures orders");
+            }
+        }
+
+        // Conflicting settings: reduceOnly + closePosition at the same time
+        if (
+            isset($this->orderData['reduceOnly'], $this->orderData['closePosition']) &&
+            $this->orderData['reduceOnly'] === true &&
+            $this->orderData['closePosition'] === true
+        ) {
+            $this->addError("reduceOnly and closePosition cannot both be true");
         }
 
         // Limit order validation

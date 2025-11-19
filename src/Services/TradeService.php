@@ -368,17 +368,38 @@ class TradeService
     }
 
     /**
-     * Create a new order
-     * 
-     * @param array $params Order parameters
-     *   - symbol: string (required) Trading symbol
-     *   - side: string (required) Order side (BUY, SELL)
-     *   - type: string (required) Order type (MARKET, LIMIT)
-     *   - quantity: float (required) Order quantity
-     *   - price: float (optional) Order price (required for LIMIT orders)
-     *   - timeInForce: string (optional) Time in force (GTC, IOC, FOK)
-     *   - positionSide: string (optional) Position side (LONG, SHORT, BOTH)
-     * @return array
+     * Create a new order.
+     *
+     * Обертка над эндпоинтом POST /openApi/swap/v2/trade/order.
+     * Метод принимает массив параметров и пробрасывает их в BingX API
+     * без дополнительной фильтрации, поэтому можно использовать все поля
+     * из официальной документации.
+     *
+     * Наиболее часто используемые параметры:
+     * - symbol: string (required)  Торговый символ, например "BTC-USDT".
+     * - side: string (required)    Сторона ордера (BUY, SELL).
+     * - type: string (required)    Тип ордера (MARKET, LIMIT, STOP, STOP_MARKET, TAKE_PROFIT и т.п.).
+     * - quantity: float            Количество (для QTY‑ордера).
+     * - margin: float              Маржа (для маржинальных/фьючерсных ордеров, если требуется).
+     * - price: float               Цена ордера (обязательно для LIMIT/STOP‑типов).
+     * - priceRate: float           Коэффициент цены для условных/трейлинг‑ордера.
+     * - positionSide: string       Сторона позиции (LONG, SHORT, BOTH).
+     * - timeInForce: string        GTC, IOC, FOK и т.п.
+     * - clientOrderId: string      Пользовательский ID ордера.
+     * - reduceOnly: bool           Закрытие только части/всей позиции без увеличения.
+     * - closePosition: bool        Закрыть всю позицию.
+     * - stopLoss: float            Цена стоп‑лосса (защитный ордер).
+     * - takeProfit: float          Цена тейк‑профита.
+     * - stopPrice: float           Триггер‑цена для STOP / TAKE_PROFIT ордеров.
+     * - stopGuaranteed: bool       Гарантированный стоп (см. ограничения в документации BingX).
+     * - positionId: int            Идентификатор позиции, если требуется привязка к существующей позиции.
+     * - workingType: string        Тип цены для триггера (MARK_PRICE, LAST_PRICE и т.п.).
+     * - newOrderRespType: string   Формат ответа (ACK, RESULT, FULL).
+     * - timestamp: int             Временная метка запроса в миллисекундах.
+     * - recvWindow: int            Допустимое окно времени запроса в миллисекундах.
+     *
+     * @param array $params Ассоциативный массив параметров ордера согласно документации BingX.
+     * @return array Ответ BingX API.
      */
     public function createOrder(array $params): array
     {

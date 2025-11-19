@@ -25,7 +25,7 @@ class BaseHttpClient
         string $apiSecret, 
         string $baseUri = 'https://open-api.bingx.com', 
         ?string $sourceKey = null, 
-        string $signatureEncoding = 'base64', 
+        string $signatureEncoding = 'hex', 
         ?Client $http = null
     ) {
         $this->apiKey = $apiKey;
@@ -54,8 +54,10 @@ class BaseHttpClient
 
     protected function signString(string $string): string
     {
+        if ($this->signatureEncoding === 'hex') {
+            return hash_hmac('sha256', $string, $this->apiSecret, false);
+        }
         $raw = hash_hmac('sha256', $string, $this->apiSecret, true);
-        if ($this->signatureEncoding === 'hex') return bin2hex($raw);
         return base64_encode($raw);
     }
 

@@ -7,6 +7,7 @@ use Tigusigalpa\BingX\Services\MarketService;
 use Tigusigalpa\BingX\Services\AccountService;
 use Tigusigalpa\BingX\Services\TradeService;
 use Tigusigalpa\BingX\Services\ContractService;
+use Tigusigalpa\BingX\Services\ListenKeyService;
 
 class BingxClient
 {
@@ -15,6 +16,7 @@ class BingxClient
     protected AccountService $account;
     protected TradeService $trade;
     protected ContractService $contract;
+    protected ListenKeyService $listenKey;
 
     public function __construct(
         string $apiKey, 
@@ -36,6 +38,7 @@ class BingxClient
         $this->account = new AccountService($this->httpClient);
         $this->trade = new TradeService($this->httpClient);
         $this->contract = new ContractService($this->httpClient);
+        $this->listenKey = new ListenKeyService($this->httpClient);
     }
 
     /**
@@ -76,6 +79,16 @@ class BingxClient
     public function contract(): ContractService
     {
         return $this->contract;
+    }
+
+    /**
+     * Get Listen Key Service for WebSocket authentication
+     * 
+     * @return ListenKeyService
+     */
+    public function listenKey(): ListenKeyService
+    {
+        return $this->listenKey;
     }
 
     /**

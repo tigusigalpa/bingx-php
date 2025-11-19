@@ -27,6 +27,9 @@
 - **Market Service** - работа с рыночными данными (символы, цены, глубина, свечи)
 - **Account Service** - управление аккаунтом (баланс, позиции, кредитное плечо)
 - **Trade Service** - торговые операции (ордера, история, управление позициями)
+- **Contract Service** - стандартные контракты (позиции, ордера, баланс)
+- **Listen Key Service** - управление ключами для WebSocket
+- **WebSocket Streams** - потоковые данные в реальном времени (market data, account updates)
 - **BaseHttpClient** - основа для HTTP запросов с HMAC-SHA256 подписью
 
 ### 🛡️ Безопасность и обработка ошибок
@@ -675,6 +678,170 @@ $orders = Bingx::contract()->getAllOrders(
 
 // Получить баланс стандартного контрактного счета
 $balance = Bingx::contract()->getBalance();
+```
+
+### 🔌 WebSocket API
+
+Библиотека поддерживает WebSocket для получения данных в реальном времени.
+
+#### Установка зависимости
+
+WebSocket функциональность требует дополнительную библиотеку:
+
+```bash
+composer require textalk/websocket
+```
+
+#### Market Data Stream (публичные данные)
+
+```php
+use Tigusigalpa\BingX\WebSocket\MarketDataStream;
+
+// Создать подключение к рыночным данным
+$stream = new MarketDataStream();
+$stream->connect();
+
+// Подписаться на сделки
+$stream->subscribeTrade('BTC-USDT');
+
+// Подписаться на свечи (kline)
+$stream->subscribeKline('BTC-USDT', '1m'); // 1m, 5m, 15m, 1h, 4h, 1d
+
+// Подписаться на стакан (depth)
+$stream->subscribeDepth('BTC-USDT', 20); // 5, 10, 20, 50, 100
+
+// Подписаться на 24h тикер
+$stream->subscribeTicker('BTC-USDT');
+
+// Подписаться на лучшие bid/ask
+$stream->subscribeBookTicker('BTC-USDT');
+
+// Обработка сообщений
+$stream->onMessage(function ($data) {
+    echo "Получены данные: " . json_encode($data) . PHP_EOL;
+    
+    // Обработка разных типов данных
+    if (isset($data['dataType'])) {
+        switch ($data['dataType']) {
+            case 'BTC-USDT@trade':
+                echo "Новая сделка: {$data['data']['p']} @ {$data['data']['q']}" . PHP_EOL;
+                break;
+            case 'BTC-USDT@kline_1m':
+                echo "Новая свеча: O:{$data['data']['o']} H:{$data['data']['h']}" . PHP_EOL;
+                break;
+        }
+    }
+});
+
+// Начать прослушивание (блокирующий вызов)
+$stream->listen();
+
+// Отписаться и закрыть соединение
+$stream->unsubscribeTrade('BTC-USDT');
+$stream->disconnect();
+```
+
+#### Account Data Stream (приватные данные)
+
+Для получения данных аккаунта нужен Listen Key:
+
+```php
+use Tigusigalpa\BingX\WebSocket\AccountDataStream;
+
+// 1. Получить Listen Key
+$response = Bingx::listenKey()->generate();
+$listenKey = $response['listenKey'];
+
+// 2. Создать подключение с Listen Key
+$stream = new AccountDataStream($listenKey);
+$stream->connect();
+
+// 3. Слушать обновления баланса
+$stream->onBalanceUpdate(function ($balances) {
+    foreach ($balances as $balance) {
+        echo "Баланс {$balance['a']}: {$balance['wb']}" . PHP_EOL;
+    }
+});
+
+// 4. Слушать обновления позиций
+$stream->onPositionUpdate(function ($positions) {
+    foreach ($positions as $position) {
+        echo "Позиция {$position['s']}: {$position['pa']} @ {$position['ep']}" . PHP_EOL;
+    }
+});
+
+// 5. Слушать обновления ордеров
+$stream->onOrderUpdate(function ($order) {
+    echo "Ордер #{$order['i']}: {$order['X']} - {$order['S']} {$order['q']}" . PHP_EOL;
+});
+
+// 6. Универсальный обработчик всех событий
+$stream->onAccountUpdate(function ($eventType, $data) {
+    switch ($eventType) {
+        case 'account':
+            echo "Обновление аккаунта" . PHP_EOL;
+            break;
+        case 'order':
+            echo "Обновление ордера" . PHP_EOL;
+            break;
+    }
+});
+
+// Начать прослушивание
+$stream->listen();
+
+// Продлить Listen Key (каждые 30 минут)
+// В отдельном потоке или через cron:
+Bingx::listenKey()->extend($listenKey);
+
+// Удалить Listen Key при завершении
+Bingx::listenKey()->delete($listenKey);
+$stream->disconnect();
+```
+
+#### Управление Listen Key
+
+```php
+// Создать новый Listen Key (действителен 60 минут)
+$response = Bingx::listenKey()->generate();
+$listenKey = $response['listenKey'];
+
+// Продлить срок действия Listen Key (рекомендуется каждые 30 минут)
+Bingx::listenKey()->extend($listenKey);
+
+// Удалить Listen Key
+Bingx::listenKey()->delete($listenKey);
+```
+
+#### Пример: Мониторинг цены в реальном времени
+
+```php
+use Tigusigalpa\BingX\WebSocket\MarketDataStream;
+
+$stream = new MarketDataStream();
+$stream->connect();
+
+// Подписаться на несколько символов
+$stream->subscribeTrade('BTC-USDT');
+$stream->subscribeTrade('ETH-USDT');
+
+$prices = [];
+
+$stream->onMessage(function ($data) use (&$prices) {
+    if (isset($data['dataType']) && str_contains($data['dataType'], '@trade')) {
+        $symbol = explode('@', $data['dataType'])[0];
+        $price = $data['data']['p'];
+        $prices[$symbol] = $price;
+        
+        echo sprintf(
+            "Цены: BTC-USDT: %s | ETH-USDT: %s\r",
+            $prices['BTC-USDT'] ?? 'N/A',
+            $prices['ETH-USDT'] ?? 'N/A'
+        );
+    }
+});
+
+$stream->listen();
 ```
 
 #### 📈 Открытый интерес

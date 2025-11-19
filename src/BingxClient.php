@@ -6,6 +6,7 @@ use Tigusigalpa\BingX\Http\BaseHttpClient;
 use Tigusigalpa\BingX\Services\MarketService;
 use Tigusigalpa\BingX\Services\AccountService;
 use Tigusigalpa\BingX\Services\TradeService;
+use Tigusigalpa\BingX\Services\ContractService;
 
 class BingxClient
 {
@@ -13,6 +14,7 @@ class BingxClient
     protected MarketService $market;
     protected AccountService $account;
     protected TradeService $trade;
+    protected ContractService $contract;
 
     public function __construct(
         string $apiKey, 
@@ -33,6 +35,7 @@ class BingxClient
         $this->market = new MarketService($this->httpClient);
         $this->account = new AccountService($this->httpClient);
         $this->trade = new TradeService($this->httpClient);
+        $this->contract = new ContractService($this->httpClient);
     }
 
     /**
@@ -63,6 +66,16 @@ class BingxClient
     public function trade(): TradeService
     {
         return $this->trade;
+    }
+
+    /**
+     * Get Contract Service for standard contract operations
+     * 
+     * @return ContractService
+     */
+    public function contract(): ContractService
+    {
+        return $this->contract;
     }
 
     /**

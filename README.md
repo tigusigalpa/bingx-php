@@ -656,6 +656,27 @@ $leverage = Bingx::trade()->getLeverage('BTC-USDT');
 Bingx::trade()->setLeverage('BTC-USDT', 10);
 ```
 
+### 📋 Standard Contract Interface
+
+Методы для работы со стандартными контрактами (Standard Contract Interface API):
+
+```php
+// Получить все позиции по стандартным контрактам
+$positions = Bingx::contract()->getAllPositions();
+
+// Получить историю ордеров по стандартным контрактам
+$orders = Bingx::contract()->getAllOrders(
+    'BTC-USDT',           // symbol
+    orderId: 123456,      // начать с этого orderId (опционально)
+    startTime: 1640995200000, // время начала в миллисекундах (опционально)
+    endTime: 1641081600000,   // время окончания в миллисекундах (опционально)
+    limit: 100            // количество результатов (опционально, макс: 1000)
+);
+
+// Получить баланс стандартного контрактного счета
+$balance = Bingx::contract()->getBalance();
+```
+
 #### 📈 Открытый интерес
 
 ```php

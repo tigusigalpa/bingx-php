@@ -28,6 +28,8 @@
 - **Account Service** - управление аккаунтом (баланс, позиции, кредитное плечо)
 - **Trade Service** - торговые операции (ордера, история, управление позициями)
 - **Contract Service** - стандартные контракты (позиции, ордера, баланс)
+- **Wallet Service** - управление кошельком (депозиты, выводы, адреса)
+- **Spot Account Service** - спотовый аккаунт (баланс, трансферы, внутренние переводы)
 - **Listen Key Service** - управление ключами для WebSocket
 - **WebSocket Streams** - потоковые данные в реальном времени (market data, account updates)
 - **BaseHttpClient** - основа для HTTP запросов с HMAC-SHA256 подписью
@@ -142,6 +144,14 @@ $price   = $bingx->market()->getLatestPrice('BTC-USDT');
 $balance     = $bingx->account()->getBalance();
 $leverage    = $bingx->account()->getLeverage('BTC-USDT');
 $setLeverage = $bingx->account()->setLeverage('BTC-USDT', 'BOTH', 10);
+
+// Wallet
+$deposits    = $bingx->wallet()->getDepositHistory('USDT');
+$address     = $bingx->wallet()->getDepositAddress('USDT', 'TRC20');
+
+// Spot Account
+$spotBalance = $bingx->spotAccount()->getBalance();
+$transfer    = $bingx->spotAccount()->universalTransfer('FUND_PFUTURES', 'USDT', 100);
 
 // Trading
 $order = $bingx->trade()->spotMarketBuy('BTC-USDT', 0.001);
@@ -680,7 +690,131 @@ $orders = Bingx::contract()->getAllOrders(
 $balance = Bingx::contract()->getBalance();
 ```
 
-### 🔌 WebSocket API
+### � Wallet Service - Управление кошельком
+
+#### 📥 Депозиты
+
+```php
+// История депозитов
+$deposits = Bingx::wallet()->getDepositHistory(
+    coin: 'USDT',
+    status: 1,           // 0: pending, 6: credited but cannot withdraw, 1: success
+    startTime: strtotime('2024-01-01') * 1000,
+    endTime: strtotime('2024-01-31') * 1000,
+    offset: 0,
+    limit: 100
+);
+
+// Получить адрес депозита
+$address = Bingx::wallet()->getDepositAddress('USDT', 'TRC20');
+
+// Записи контроля рисков депозитов
+$riskRecords = Bingx::wallet()->getDepositRiskRecords(
+    coin: 'USDT',
+    startTime: strtotime('2024-01-01') * 1000,
+    endTime: strtotime('2024-01-31') * 1000
+);
+```
+
+#### 📤 Выводы
+
+```php
+// История выводов
+$withdrawals = Bingx::wallet()->getWithdrawalHistory(
+    coin: 'USDT',
+    withdrawOrderId: null,
+    status: 6,           // 0: Email Sent, 1: Cancelled, 2: Awaiting Approval, 
+                         // 3: Rejected, 4: Processing, 5: Failure, 6: Completed
+    startTime: strtotime('2024-01-01') * 1000,
+    endTime: strtotime('2024-01-31') * 1000
+);
+
+// Создать вывод средств
+$withdrawal = Bingx::wallet()->withdraw(
+    coin: 'USDT',
+    address: 'TXxx...xxx',
+    amount: 100.0,
+    network: 'TRC20',
+    addressTag: null,    // для монет типа XRP, XMR
+    walletType: '0'      // 0: spot wallet, 1: fund wallet
+);
+```
+
+#### 🪙 Информация о монетах
+
+```php
+// Получить информацию о всех монетах
+$coins = Bingx::wallet()->getAllCoinInfo();
+```
+
+### 💰 Spot Account Service - Спотовый аккаунт
+
+#### 💵 Баланс и активы
+
+```php
+// Получить баланс спотового аккаунта
+$balance = Bingx::spotAccount()->getBalance(recvWindow: 60000);
+
+// Получить баланс фонда
+$fundBalance = Bingx::spotAccount()->getFundBalance();
+
+// Получить балансы всех аккаунтов
+$allBalances = Bingx::spotAccount()->getAllAccountBalances();
+```
+
+#### 🔄 Трансферы
+
+```php
+// Универсальный трансфер между аккаунтами
+$transfer = Bingx::spotAccount()->universalTransfer(
+    type: 'FUND_PFUTURES',  // FUND_SFUTURES, SFUTURES_FUND, FUND_PFUTURES, PFUTURES_FUND
+    asset: 'USDT',
+    amount: 100.0
+);
+
+// История трансферов
+$transferHistory = Bingx::spotAccount()->getAssetTransferRecords(
+    type: 'FUND_PFUTURES',
+    startTime: strtotime('2024-01-01') * 1000,
+    endTime: strtotime('2024-01-31') * 1000,
+    current: 1,
+    size: 50
+);
+
+// Получить поддерживаемые монеты для трансфера
+$supportedCoins = Bingx::spotAccount()->getSupportedTransferCoins();
+```
+
+#### 🏦 Внутренние переводы (между основным и суб-аккаунтами)
+
+```php
+// Внутренний перевод
+$internalTransfer = Bingx::spotAccount()->internalTransfer(
+    coin: 'USDT',
+    walletType: 'SPOT',              // SPOT, PERPETUAL
+    amount: 50.0,
+    transferType: 'FROM_MAIN_TO_SUB', // FROM_MAIN_TO_SUB, FROM_SUB_TO_MAIN
+    subUid: '123456',
+    clientId: 'my-transfer-001'
+);
+
+// История внутренних переводов
+$internalHistory = Bingx::spotAccount()->getInternalTransferRecords(
+    clientId: 'my-transfer-001',
+    startTime: strtotime('2024-01-01') * 1000,
+    endTime: strtotime('2024-01-31') * 1000
+);
+
+// История внутренних переводов основного аккаунта
+$mainAccountHistory = Bingx::spotAccount()->getMainAccountInternalTransferRecords(
+    startTime: strtotime('2024-01-01') * 1000,
+    endTime: strtotime('2024-01-31') * 1000,
+    current: 1,
+    size: 50
+);
+```
+
+### � WebSocket API
 
 Библиотека поддерживает WebSocket для получения данных в реальном времени.
 
@@ -1056,12 +1190,18 @@ $order = Bingx::trade()->order()
 - **MarketService**: 28 методов (рыночные данные futures + spot)
 - **AccountService**: 30 методов (управление аккаунтом и активами)
 - **TradeService**: 41 метод (торговые операции + OrderBuilder)
-- **Всего**: 99+ методов обеспечивают **100% покрытие** официального API
+- **WalletService**: 6 методов (депозиты, выводы, адреса кошельков)
+- **SpotAccountService**: 8 методов (спотовый баланс, трансферы, внутренние переводы)
+- **ContractService**: 3 метода (стандартные контракты)
+- **ListenKeyService**: 3 метода (WebSocket аутентификация)
+- **Всего**: 119+ методов обеспечивают **100% покрытие** официального API
 
 ### 🚀 **Ключевые возможности:**
 - ✅ Все эндпоинты Market API (символы, цены, глубина, свечи, сделки)
 - ✅ Полный Account API (баланс, позиции, комиссии, трансферы)
 - ✅ Расширенный Trade API (ордеры, история, плечи, позиции)
+- ✅ Wallet API (депозиты, выводы, адреса кошельков, информация о монетах)
+- ✅ Spot Account API (баланс, универсальные трансферы, внутренние переводы)
 - ✅ OrderBuilder для сложных торговых стратегий
 - ✅ Анализ настроений рынка (лонг/шорт соотношения)
 - ✅ Управление активами и dust конвертация

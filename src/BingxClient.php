@@ -8,6 +8,8 @@ use Tigusigalpa\BingX\Services\AccountService;
 use Tigusigalpa\BingX\Services\TradeService;
 use Tigusigalpa\BingX\Services\ContractService;
 use Tigusigalpa\BingX\Services\ListenKeyService;
+use Tigusigalpa\BingX\Services\WalletService;
+use Tigusigalpa\BingX\Services\SpotAccountService;
 
 class BingxClient
 {
@@ -17,6 +19,8 @@ class BingxClient
     protected TradeService $trade;
     protected ContractService $contract;
     protected ListenKeyService $listenKey;
+    protected WalletService $wallet;
+    protected SpotAccountService $spotAccount;
 
     public function __construct(
         string $apiKey, 
@@ -39,6 +43,8 @@ class BingxClient
         $this->trade = new TradeService($this->httpClient);
         $this->contract = new ContractService($this->httpClient);
         $this->listenKey = new ListenKeyService($this->httpClient);
+        $this->wallet = new WalletService($this->httpClient);
+        $this->spotAccount = new SpotAccountService($this->httpClient);
     }
 
     /**
@@ -89,6 +95,26 @@ class BingxClient
     public function listenKey(): ListenKeyService
     {
         return $this->listenKey;
+    }
+
+    /**
+     * Get Wallet Service for wallet operations (deposits, withdrawals)
+     * 
+     * @return WalletService
+     */
+    public function wallet(): WalletService
+    {
+        return $this->wallet;
+    }
+
+    /**
+     * Get Spot Account Service for spot account operations
+     * 
+     * @return SpotAccountService
+     */
+    public function spotAccount(): SpotAccountService
+    {
+        return $this->spotAccount;
     }
 
     /**

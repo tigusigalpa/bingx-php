@@ -1,53 +1,64 @@
 # BingX PHP SDK
 
+![BingX PHP SDK](https://github.com/user-attachments/assets/bc9acf4c-79c7-4e02-bb8d-75f2d8784b29)
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/bc9acf4c-79c7-4e02-bb8d-75f2d8784b29" alt="BingX PHP SDK" style="max-width: 100%; height: auto;">
-  
-  [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-blue?style=flat-square&logo=php)](https://www.php.net/)
-  [![Composer](https://img.shields.io/badge/composer-v2-orange?style=flat-square&logo=composer)](https://getcomposer.org/)
-  [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
-  [![GitHub Stars](https://img.shields.io/github/stars/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php)
-  [![Latest Release](https://img.shields.io/github/v/release/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php/releases)
-  [![Test Coverage](https://img.shields.io/badge/coverage-119%2B%20tests-brightgreen?style=flat-square)](#-тестирование)
-  
-  **Полнофункциональный PHP SDK для BingX Swap V2 API**
-  
-  Торговля криптовалютами | Рыночные данные | WebSocket потоки | Laravel интеграция
+
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-blue?style=flat-square&logo=php)](https://www.php.net/)
+[![Composer](https://img.shields.io/badge/composer-v2-orange?style=flat-square&logo=composer)](https://getcomposer.org/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php)
+[![Latest Release](https://img.shields.io/github/v/release/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php/releases)
+[![Test Coverage](https://img.shields.io/badge/coverage-119%2B%20tests-brightgreen?style=flat-square)](#-тестирование)
+
+**Полнофункциональный PHP SDK для BingX API**
+
+USDT-M & Coin-M Фьючерсы | Рыночные данные | WebSocket потоки | Интеграция с Laravel
+
+**🌐 Язык:** Русский | [English](README.md)
 </div>
 
 ---
 
-## 📖 Оглавление
+## 📖 Содержание
 
 - [О библиотеке](#-о-библиотеке)
 - [Возможности](#-возможности)
 - [Быстрый старт](#-быстрый-старт)
 - [Установка](#-установка)
 - [Использование](#-использование)
-  - [Market Service](#-market-service---рыночные-данные)
-  - [Account Service](#-account-service---управление-аккаунтом)
-  - [Trade Service](#-trade-service---торговые-операции)
-  - [WebSocket API](#-websocket-api)
-- [OrderBuilder](#-orderbuilder---продвинутое-создание-ордеров)
+    - [Market Service](#-market-service---рыночные-данные)
+    - [Quote API](#-quote-api---оптимизированные-рыночные-данные)
+    - [TWAP Orders](#-twap-orders---алгоритмическая-торговля)
+    - [Account Service](#-account-service---управление-аккаунтом)
+    - [Trade Service](#-trade-service---торговые-операции)
+    - [WebSocket API](#-websocket-api)
+    - [Coin-M Perpetual Futures](#-coin-m-perpetual-futures---контракты-с-крипто-маржой)
+- [OrderBuilder](#-orderbuilder---расширенное-создание-ордеров)
 - [Обработка ошибок](#-обработка-ошибок)
 - [Тестирование](#-тестирование)
 - [Документация](#-документация)
+- [Версии](#-версии)
 - [Лицензия](#-лицензия)
 
 ---
 
 ## ✨ О библиотеке
 
-**BingX PHP SDK** — это профессиональная, полнофункциональная библиотека для работы с BingX Swap V2 API. 
+**BingX PHP SDK** — профессиональная, многофункциональная библиотека для работы с BingX API (USDT-M и Coin-M
+бессрочные фьючерсы).
 
-Создана с использованием современных практик PHP и обеспечивает:
-- ✅ **100% покрытие** всех эндпоинтов BingX API
+Создана с использованием современных практик PHP и предоставляет:
+
+- ✅ **100% покрытие** USDT-M Perpetual Futures API
+- ✅ **Coin-M Perpetual Futures** полностью реализован
 - ✅ **Модульная архитектура** с отдельными сервисами
-- ✅ **Laravel 8-12 интеграция** с автодиспетчеризацией
-- ✅ **Продвинутая обработка ошибок** с кастомными исключениями
-- ✅ **WebSocket поддержка** для потоковых данных
-- ✅ **Полная безопасность** с HMAC-SHA256 подписями
-- ✅ **119+ методов** для полного контроля над торговлей
+- ✅ **Интеграция с Laravel 8-12** с автоопределением
+- ✅ **Расширенная обработка ошибок** с пользовательскими исключениями
+- ✅ **Поддержка WebSocket** для потоковых данных
+- ✅ **Полная безопасность** с подписями HMAC-SHA256
+- ✅ **186 методов** для полного контроля торговли
+- ✅ **Quote API** для оптимизированных рыночных данных
+- ✅ **TWAP ордера** для алгоритмической торговли
 
 ---
 
@@ -55,30 +66,36 @@
 
 ### 📊 Поддерживаемые сервисы
 
-| Сервис | Описание | Методов |
-|--------|---------|--------|
-| 🏪 **Market Service** | Рыночные данные, символы, цены, свечи, сделки | 28 |
-| 👤 **Account Service** | Баланс, позиции, плечо, маржа, комиссии | 30 |
-| 🔄 **Trade Service** | Ордера, история сделок, управление позициями | 41 |
-| 💰 **Wallet Service** | Депозиты, выводы, адреса кошельков | 6 |
-| 💵 **Spot Account Service** | Спотовый баланс, трансферы, внутренние переводы | 8 |
-| 📋 **Contract Service** | Стандартные контракты API | 3 |
-| 🔐 **Listen Key Service** | WebSocket аутентификация | 3 |
+| Сервис                       | Описание                                                   | Методов |
+|------------------------------|------------------------------------------------------------|---------|
+| **USDT-M Perpetual Futures** |                                                            |         |
+| 🏪 **Market Service**        | Рыночные данные, Quote API, символы, цены, свечи          | 40      |
+| ⏱️ **TWAP Service**          | Алгоритмические ордера с временным взвешиванием           | 7       |
+| 👤 **Account Service**       | Баланс, позиции, кредитное плечо, маржа, активы           | 39      |
+| 🔄 **Trade Service**         | Ордера, история сделок, управление позициями              | 54      |
+| 💰 **Wallet Service**        | Депозиты, выводы, адреса кошельков                        | 6       |
+| 💵 **Spot Account Service**  | Спотовый баланс, переводы, внутренние переводы            | 8       |
+| 📋 **Contract Service**      | Стандартный API контрактов                                 | 3       |
+| 🔐 **Listen Key Service**    | Аутентификация WebSocket                                   | 3       |
+| **Coin-M Perpetual Futures** |                                                            |         |
+| 🪙 **Coin-M Market**         | Информация о контрактах, тикер, глубина, свечи, открытый интерес | 6       |
+| 🪙 **Coin-M Trade**          | Ордера, позиции, кредитное плечо, маржа, баланс          | 17      |
+| 🪙 **Coin-M Listen Key**     | Аутентификация WebSocket для Coin-M                       | 3       |
 
 ### 🛡️ Безопасность
 
-- ✅ HMAC-SHA256 подпись всех запросов
-- ✅ Автоматический timestamp с валидацией
-- ✅ Поддержка base64 и hex кодирования подписи
-- ✅ recvWindow для защиты от replay атак
-- ✅ Кастомные исключения для разных типов ошибок
+- ✅ Подпись HMAC-SHA256 для всех запросов
+- ✅ Автоматическая валидация временных меток
+- ✅ Поддержка кодирования подписи base64 и hex
+- ✅ recvWindow для защиты от повторных атак
+- ✅ Пользовательские исключения для разных типов ошибок
 
 ### 🔧 Удобство разработки
 
-- ✅ Fluent интерфейс для построения ордеров
-- ✅ IDE автодополнение с type hints
-- ✅ Comprehensive error messages
-- ✅ Full test coverage с примерами
+- ✅ Fluent интерфейс для создания ордеров
+- ✅ Автодополнение IDE с подсказками типов
+- ✅ Подробные сообщения об ошибках
+- ✅ Полное покрытие тестами с примерами
 - ✅ Поддержка чистого PHP и Laravel
 
 ---
@@ -90,12 +107,12 @@
 ```php
 // Получить текущую цену
 $price = Bingx::market()->getLatestPrice('BTC-USDT');
-echo "BTC price: {$price['price']}";
+echo "Цена BTC: {$price['price']}";
 
-// Получить баланс
+// Получить баланс аккаунта
 $balance = Bingx::account()->getBalance();
 
-// Создать ордер через OrderBuilder
+// Создать ордер используя OrderBuilder
 $order = Bingx::trade()->order()
     ->futures()
     ->symbol('BTC-USDT')
@@ -134,13 +151,16 @@ $price = $bingx->market()->getLatestPrice('BTC-USDT');
 
 ### Шаг 1: Добавить репозиторий
 
-В корневой `composer.json` добавьте:
+В корневой `composer.json`:
 
 ```json
 {
-  "repositories": [
-    { "type": "path", "url": "packages/bingx-php" }
-  ]
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/bingx-php"
+        }
+    ]
 }
 ```
 
@@ -150,7 +170,7 @@ $price = $bingx->market()->getLatestPrice('BTC-USDT');
 composer require tigusigalpa/bingx-php:*
 ```
 
-### Шаг 3: (Только для Laravel) Публиковать конфигурацию
+### Шаг 3: (Только Laravel) Опубликовать конфигурацию
 
 ```bash
 php artisan vendor:publish --tag=bingx-config
@@ -158,7 +178,7 @@ php artisan vendor:publish --tag=bingx-config
 
 ### Шаг 4: Настроить переменные окружения
 
-В `.env` добавьте:
+Добавить в `.env`:
 
 ```env
 BINGX_API_KEY=your_api_key_here
@@ -168,10 +188,10 @@ BINGX_BASE_URI=https://open-api.bingx.com
 BINGX_SIGNATURE_ENCODING=base64
 ```
 
-### 🔑 Создание API-ключей
+### 🔑 Создание API ключей
 
-1. Перейдите в [настройки API BingX](https://bingx.com/ru-ru/accounts/api)
-2. Нажмите "Создать API"
+1. Перейдите в [BingX API Settings](https://bingx.com/en-US/accounts/api)
+2. Нажмите "Create API"
 3. Сохраните **API Key** и **Secret Key** в безопасном месте
 4. Настройте права доступа
 5. ⚠️ Secret Key отображается только один раз!
@@ -203,22 +223,22 @@ $futuresSymbols = Bingx::market()->getFuturesSymbols();
 $futuresPrice = Bingx::market()->getLatestPrice('BTC-USDT');
 $spotPrice = Bingx::market()->getSpotLatestPrice('BTC-USDT');
 
-// 24h статистика
+// 24-часовая статистика
 $ticker = Bingx::market()->get24hrTicker('BTC-USDT');
 $spotTicker = Bingx::market()->getSpot24hrTicker('BTC-USDT');
 
-// Все символы (в одном запросе)
+// Все символы сразу
 $allTickers = Bingx::market()->get24hrTicker();
 ```
 
 #### Глубина рынка и свечи
 
 ```php
-// Глубина рынка (order book)
+// Глубина стакана ордеров
 $depth = Bingx::market()->getDepth('BTC-USDT', 20);
 $spotDepth = Bingx::market()->getSpotDepth('BTC-USDT', 20);
 
-// Свечи (candlesticks)
+// Свечи
 $klines = Bingx::market()->getKlines('BTC-USDT', '1h', 100);
 $spotKlines = Bingx::market()->getSpotKlines('BTC-USDT', '1h', 100);
 
@@ -230,16 +250,16 @@ $klines = Bingx::market()->getKlines(
 );
 ```
 
-#### Финансирование и марка
+#### Ставка финансирования и маркированная цена
 
 ```php
-// Ставка финансирования
+// История ставки финансирования
 $fundingRate = Bingx::market()->getFundingRateHistory('BTC-USDT', 100);
 
-// Марка-цена
+// Маркированная цена
 $markPrice = Bingx::market()->getMarkPrice('BTC-USDT');
 
-// Премиум индекс
+// Индекс премии
 $premiumKlines = Bingx::market()->getPremiumIndexKlines('BTC-USDT', '1h', 100);
 
 // Непрерывные контракты
@@ -252,7 +272,7 @@ $continuousKlines = Bingx::market()->getContinuousKlines('BTC-USDT', '1h', 100);
 // Агрегированные сделки
 $aggTrades = Bingx::market()->getAggregateTrades('BTC-USDT', 500);
 
-// Последние сделки
+// Недавние сделки
 $recentTrades = Bingx::market()->getRecentTrades('BTC-USDT', 500);
 
 // Спотовые сделки
@@ -260,136 +280,87 @@ $spotAggTrades = Bingx::market()->getSpotAggregateTrades('BTC-USDT', 500);
 $spotRecentTrades = Bingx::market()->getSpotRecentTrades('BTC-USDT', 500);
 ```
 
-#### Анализ настроений рынка
+---
+
+### 📊 Quote API - Оптимизированные рыночные данные
+
+Quote API предоставляет рыночные данные в реальном времени с улучшенной производительностью для высокочастотной торговли.
 
 ```php
-// Соотношение лонг/шорт позиций
-$longShortRatio = Bingx::market()->getTopLongShortRatio('BTC-USDT', 10);
+// Получить все спецификации контрактов
+$contracts = Bingx::market()->getContracts();
 
-// История соотношений
-$historicalRatio = Bingx::market()->getHistoricalTopLongShortRatio(
-    'BTC-USDT', 500,
-    strtotime('2024-01-01') * 1000,
-    strtotime('2024-01-02') * 1000
+// Стакан ордеров через Quote API (оптимизированный)
+$depth = Bingx::market()->getQuoteDepth('BTC-USDT', 20);
+
+// 24-часовой тикер через Quote API
+$ticker = Bingx::market()->getQuoteTicker('BTC-USDT');
+
+// Ставка финансирования
+$fundingRate = Bingx::market()->getQuoteFundingRate('BTC-USDT');
+
+// Открытый интерес
+$openInterest = Bingx::market()->getQuoteOpenInterest('BTC-USDT');
+```
+
+---
+
+### ⏱️ TWAP Orders - Алгоритмическая торговля
+
+TWAP (Time-Weighted Average Price) ордера позволяют исполнять крупные ордера со временем для минимизации влияния на рынок.
+
+```php
+// Простой TWAP ордер на покупку
+$order = Bingx::twap()->buy(
+    symbol: 'BTC-USDT',
+    quantity: 1.0,
+    duration: 1800, // 30 минут в секундах
+    price: null, // null = рыночная цена
+    positionSide: 'LONG'
 );
 
-// Базисные данные контрактов
-$basis = Bingx::market()->getBasis('BTC-USDT', 'PERPETUAL', 100);
+// Отменить TWAP ордер
+Bingx::twap()->cancelOrder('orderId', 'BTC-USDT');
+
+// Получить открытые TWAP ордера
+$openOrders = Bingx::twap()->getOpenOrders('BTC-USDT');
 ```
 
 ---
 
 ### 👤 Account Service - Управление аккаунтом
 
-#### Баланс и позиции
-
 ```php
-// Получить баланс
+// Получить баланс аккаунта
 $balance = Bingx::account()->getBalance();
 
 // Все позиции
 $allPositions = Bingx::account()->getPositions();
 
-// Позиции для конкретного символа
-$positions = Bingx::account()->getPositions('BTC-USDT');
-
-// Информация об аккаунте
-$accountInfo = Bingx::account()->getAccountInfo();
-```
-
-#### Управление плечом и маржей
-
-```php
-// Получить текущее плечо
+// Получить текущее кредитное плечо
 $leverage = Bingx::account()->getLeverage('BTC-USDT');
 
-// Установить плечо
+// Установить кредитное плечо
 Bingx::account()->setLeverage('BTC-USDT', 'BOTH', 20);
 
 // Режим маржи (ISOLATED или CROSSED)
 $marginMode = Bingx::account()->getMarginMode('BTC-USDT');
 Bingx::account()->setMarginMode('BTC-USDT', 'ISOLATED');
-
-// Маржа позиции
-Bingx::account()->setPositionMargin('BTC-USDT', 'LONG', 100.0, 1);
-```
-
-#### Торговые комиссии
-
-```php
-// Комиссии для символа
-$fees = Bingx::account()->getTradingFees('BTC-USDT');
-
-// Права доступа API
-$permissions = Bingx::account()->getAccountPermissions();
-
-// Информация об API ключе
-$apiKey = Bingx::account()->getApiKey();
-
-// Комиссии пользователя
-$userRates = Bingx::account()->getUserCommissionRates('BTC-USDT');
-
-// Лимиты API
-$rateLimits = Bingx::account()->getApiRateLimits();
-```
-
-#### История операций
-
-```php
-// История баланса
-$balanceHistory = Bingx::account()->getBalanceHistory('USDT', 100);
-
-// История депозитов
-$deposits = Bingx::account()->getDepositHistory('USDT', 100);
-
-// История выводов
-$withdrawals = Bingx::account()->getWithdrawHistory('USDT', 100);
-```
-
-#### Управление активами
-
-```php
-// Детали актива
-$assetDetails = Bingx::account()->getAssetDetails('USDT');
-
-// Все доступные активы
-$allAssets = Bingx::account()->getAllAssets();
-
-// Финансирование кошелька
-$fundingWallet = Bingx::account()->getFundingWallet('USDT');
-
-// Конвертация dust (мелких активов)
-Bingx::account()->dustTransfer(['BTC', 'ETH']);
 ```
 
 ---
 
 ### 🔄 Trade Service - Торговые операции
 
-#### Быстрые торговые методы
-
 ```php
 // Спотовые ордера
 $buy = Bingx::trade()->spotMarketBuy('BTC-USDT', 0.001);
 $sell = Bingx::trade()->spotMarketSell('BTC-USDT', 0.001);
 
-// Спотовые лимит-ордера
-$limitBuy = Bingx::trade()->spotLimitBuy('BTC-USDT', 0.001, 50000);
-$limitSell = Bingx::trade()->spotLimitSell('BTC-USDT', 0.001, 60000);
-
 // Фьючерсные ордера
 $longOrder = Bingx::trade()->futuresLongMarket('BTC-USDT', 100, 10);
 $shortOrder = Bingx::trade()->futuresShortMarket('BTC-USDT', 100, 10);
 
-// С защитными ордерами
-$longLimit = Bingx::trade()->futuresLongLimit(
-    'BTC-USDT', 100, 50000, 48000, 55000, 10
-);
-```
-
-#### Создание и управление ордерами
-
-```php
 // Создать ордер
 $order = Bingx::trade()->createOrder([
     'symbol' => 'BTC-USDT',
@@ -398,188 +369,16 @@ $order = Bingx::trade()->createOrder([
     'quantity' => 0.001
 ]);
 
-// Тестовый ордер (без исполнения)
-$testOrder = Bingx::trade()->createTestOrder([
-    'symbol' => 'BTC-USDT',
-    'side' => 'BUY',
-    'type' => 'LIMIT',
-    'quantity' => 0.001,
-    'price' => 50000
-]);
-
-// Пакетное создание
-$batchOrders = Bingx::trade()->createBatchOrders([
-    [
-        'symbol' => 'BTC-USDT',
-        'side' => 'BUY',
-        'type' => 'LIMIT',
-        'quantity' => 0.001,
-        'price' => 50000
-    ],
-    [
-        'symbol' => 'ETH-USDT',
-        'side' => 'SELL',
-        'type' => 'LIMIT',
-        'quantity' => 0.01,
-        'price' => 3000
-    ]
-]);
-```
-
-#### Отмена ордеров
-
-```php
 // Отменить конкретный ордер
 Bingx::trade()->cancelOrder('BTC-USDT', '123456789');
 
 // Отменить все ордера для символа
 Bingx::trade()->cancelAllOrders('BTC-USDT');
-
-// Пакетная отмена
-Bingx::trade()->cancelBatchOrders('BTC-USDT', ['123456789', '987654321']);
-
-// Отмена и замена
-Bingx::trade()->cancelAndReplaceOrder(
-    'BTC-USDT', '123456789', 'BUY', 'LIMIT', 0.001, 50000
-);
-```
-
-#### Получение информации об ордерах
-
-```php
-// Детали ордера
-$order = Bingx::trade()->getOrder('BTC-USDT', '123456789');
-
-// Открытые ордера
-$openOrders = Bingx::trade()->getOpenOrders();
-$openOrdersForSymbol = Bingx::trade()->getOpenOrders('BTC-USDT', 50);
-
-// История ордеров
-$orderHistory = Bingx::trade()->getOrderHistory('BTC-USDT', 100);
-
-// История сделок
-$userTrades = Bingx::trade()->getUserTrades('BTC-USDT', 100);
-```
-
-#### Расчет комиссий
-
-```php
-// Расчет комиссии для фьючерса
-$commission = Bingx::trade()->calculateFuturesCommission(100, 10);
-// Возвращает детальную информацию о комиссии
-
-// Быстрый расчет суммы
-$amount = Bingx::trade()->getCommissionAmount(100, 10); // 0.45
-
-// Пакетный расчет
-$batchCommission = Bingx::trade()->calculateBatchCommission([
-    ['margin' => 100, 'leverage' => 10],
-    ['margin' => 200, 'leverage' => 5]
-]);
-
-// Получить ставки комиссии
-$rates = Bingx::trade()->getCommissionRates();
-```
-
-#### Управление позициями
-
-```php
-// Режим позиции
-$positionMode = Bingx::trade()->getPositionMode();
-Bingx::trade()->setPositionMode('HEDGE_MODE');
-
-// Сторона позиции
-$positionSide = Bingx::trade()->getPositionSide();
-Bingx::trade()->setPositionSide('BOTH');
-
-// Закрыть все позиции
-Bingx::trade()->closeAllPositions('BTC-USDT');
-
-// Тип маржи
-$marginType = Bingx::trade()->getMarginType('BTC-USDT');
-Bingx::trade()->changeMarginType('BTC-USDT', 'ISOLATED');
-```
-
----
-
-### 💰 Wallet Service - Управление кошельком
-
-```php
-// История депозитов
-$deposits = Bingx::wallet()->getDepositHistory(
-    coin: 'USDT',
-    status: 1,
-    startTime: strtotime('2024-01-01') * 1000,
-    endTime: strtotime('2024-01-31') * 1000
-);
-
-// Адрес депозита
-$address = Bingx::wallet()->getDepositAddress('USDT', 'TRC20');
-
-// История выводов
-$withdrawals = Bingx::wallet()->getWithdrawalHistory(
-    coin: 'USDT',
-    status: 6
-);
-
-// Создать вывод
-$withdrawal = Bingx::wallet()->withdraw(
-    coin: 'USDT',
-    address: 'TXxx...xxx',
-    amount: 100.0,
-    network: 'TRC20'
-);
-
-// Информация о монетах
-$coins = Bingx::wallet()->getAllCoinInfo();
-```
-
----
-
-### 💵 Spot Account Service - Спотовый аккаунт
-
-```php
-// Баланс спотового аккаунта
-$balance = Bingx::spotAccount()->getBalance();
-
-// Баланс фонда
-$fundBalance = Bingx::spotAccount()->getFundBalance();
-
-// Универсальный трансфер
-$transfer = Bingx::spotAccount()->universalTransfer(
-    type: 'FUND_PFUTURES',
-    asset: 'USDT',
-    amount: 100.0
-);
-
-// История трансферов
-$history = Bingx::spotAccount()->getAssetTransferRecords(
-    type: 'FUND_PFUTURES',
-    startTime: strtotime('2024-01-01') * 1000,
-    endTime: strtotime('2024-01-31') * 1000
-);
-
-// Внутренний перевод (основной -> суб-аккаунт)
-$internalTransfer = Bingx::spotAccount()->internalTransfer(
-    coin: 'USDT',
-    walletType: 'SPOT',
-    amount: 50.0,
-    transferType: 'FROM_MAIN_TO_SUB',
-    subUid: '123456'
-);
 ```
 
 ---
 
 ### 🌐 WebSocket API
-
-#### Установка зависимости
-
-```bash
-composer require textalk/websocket
-```
-
-#### Market Data Stream (публичные данные)
 
 ```php
 use Tigusigalpa\BingX\WebSocket\MarketDataStream;
@@ -591,98 +390,85 @@ $stream->connect();
 $stream->subscribeTrade('BTC-USDT');
 $stream->subscribeKline('BTC-USDT', '1m');
 $stream->subscribeDepth('BTC-USDT', 20);
-$stream->subscribeTicker('BTC-USDT');
-$stream->subscribeBookTicker('BTC-USDT');
 
 // Обработка сообщений
 $stream->onMessage(function ($data) {
     echo "Данные: " . json_encode($data) . PHP_EOL;
-    
-    if (isset($data['dataType'])) {
-        switch ($data['dataType']) {
-            case 'BTC-USDT@trade':
-                echo "Новая сделка: {$data['data']['p']}";
-                break;
-            case 'BTC-USDT@kline_1m':
-                echo "Новая свеча";
-                break;
-        }
-    }
 });
 
 // Начать прослушивание
 $stream->listen();
-
-// Отписаться и закрыть
-$stream->unsubscribeTrade('BTC-USDT');
-$stream->disconnect();
-```
-
-#### Account Data Stream (приватные данные)
-
-```php
-use Tigusigalpa\BingX\WebSocket\AccountDataStream;
-
-// 1. Получить Listen Key
-$response = Bingx::listenKey()->generate();
-$listenKey = $response['listenKey'];
-
-// 2. Создать подключение
-$stream = new AccountDataStream($listenKey);
-$stream->connect();
-
-// 3. Слушать обновления
-$stream->onBalanceUpdate(function ($balances) {
-    foreach ($balances as $balance) {
-        echo "Баланс {$balance['a']}: {$balance['wb']}";
-    }
-});
-
-$stream->onPositionUpdate(function ($positions) {
-    foreach ($positions as $position) {
-        echo "Позиция {$position['s']}: {$position['pa']}";
-    }
-});
-
-$stream->onOrderUpdate(function ($order) {
-    echo "Ордер #{$order['i']}: {$order['X']}";
-});
-
-// 4. Начать прослушивание
-$stream->listen();
-
-// 5. Продлить Listen Key (каждые 30 минут)
-Bingx::listenKey()->extend($listenKey);
-
-// 6. Закрыть подключение
-Bingx::listenKey()->delete($listenKey);
-$stream->disconnect();
-```
-
-#### Управление Listen Key
-
-```php
-// Создать новый ключ (действителен 60 минут)
-$response = Bingx::listenKey()->generate();
-$listenKey = $response['listenKey'];
-
-// Продлить срок действия (рекомендуется каждые 30 минут)
-Bingx::listenKey()->extend($listenKey);
-
-// Удалить ключ
-Bingx::listenKey()->delete($listenKey);
 ```
 
 ---
 
-## 🎯 OrderBuilder - Продвинутое создание ордеров
+### 🪙 Coin-M Perpetual Futures - Контракты с крипто-маржой
 
-OrderBuilder предоставляет удобный fluent интерфейс для создания сложных ордеров с автоматическим расчетом.
+Coin-M бессрочные фьючерсы — это контракты с маржой и расчётами в криптовалюте (например, BTC, ETH) вместо USDT.
 
-### Простые примеры
+#### Ключевые отличия от USDT-M фьючерсов
+
+| Особенность           | USDT-M Фьючерсы     | Coin-M Фьючерсы                |
+|-----------------------|---------------------|--------------------------------|
+| **Валюта маржи**      | USDT (стейблкоин)   | Криптовалюта (BTC, ETH и т.д.) |
+| **Расчёты**           | USDT                | Базовая криптовалюта           |
+| **API путь**          | `/openApi/swap/v2/` | `/openApi/cswap/v1/`           |
+| **Формат символа**    | BTC-USDT            | BTC-USD, ETH-USD               |
+| **Деноминация цены**  | USD значение        | Контракты на монету            |
+
+#### Рыночные данные
 
 ```php
-// Фьючерсный ордер с плечом
+// Информация о контрактах
+$contracts = Bingx::coinM()->market()->getContracts();
+
+// Текущая цена и ставка финансирования
+$ticker = Bingx::coinM()->market()->getTicker('BTC-USD');
+
+// Открытые позиции (открытый интерес)
+$openPositions = Bingx::coinM()->market()->getOpenPositions('BTC-USD');
+
+// Данные K-line
+$klines = Bingx::coinM()->market()->getKlines('BTC-USD', '1h', 100);
+
+// Глубина стакана ордеров
+$depth = Bingx::coinM()->market()->getDepth('BTC-USD', 20);
+```
+
+#### Торговые операции
+
+```php
+// Разместить ордер
+$order = Bingx::coinM()->trade()->createOrder([
+    'symbol' => 'BTC-USD',
+    'side' => 'BUY',
+    'positionSide' => 'LONG',
+    'type' => 'LIMIT',
+    'quantity' => 100,
+    'price' => 50000
+]);
+
+// Получить кредитное плечо
+$leverage = Bingx::coinM()->trade()->getLeverage('BTC-USD');
+
+// Установить кредитное плечо
+Bingx::coinM()->trade()->setLeverage('BTC-USD', 10);
+
+// Получить позиции
+$positions = Bingx::coinM()->trade()->getPositions('BTC-USD');
+
+// Получить баланс аккаунта
+$balance = Bingx::coinM()->trade()->getBalance();
+```
+
+---
+
+## 🎯 OrderBuilder - Расширенное создание ордеров
+
+OrderBuilder предоставляет удобный fluent интерфейс для создания сложных ордеров с автоматическим расчётом.
+
+```php
+// Фьючерсный ордер с кредитным плечом
 $order = Bingx::trade()->order()
     ->futures()
     ->symbol('BTC-USDT')
@@ -694,20 +480,6 @@ $order = Bingx::trade()->order()
     ->leverage(10)
     ->execute();
 
-// Спотовый лимит-ордер
-$order = Bingx::trade()->order()
-    ->spot()
-    ->symbol('ETH-USDT')
-    ->sell()
-    ->type('LIMIT')
-    ->quantity(0.1)
-    ->price(3000)
-    ->execute();
-```
-
-### Ордера с защитными стопами
-
-```php
 // Лонг с процентными стопами
 $order = Bingx::trade()->order()
     ->futures()
@@ -718,77 +490,16 @@ $order = Bingx::trade()->order()
     ->margin(200)
     ->price(50000)
     ->leverage(10)
-    ->stopLossPercent(5)      // Stop Loss на 5% ниже
-    ->takeProfitPercent(15)   // Take Profit на 15% выше
-    ->execute();
-
-// Шорт с фиксированными ценами
-$order = Bingx::trade()->order()
-    ->futures()
-    ->symbol('BTC-USDT')
-    ->sell()
-    ->short()
-    ->type('MARKET')
-    ->margin(150)
-    ->leverage(5)
-    ->stopLossPrice(52000)    // Фиксированный Stop Loss
-    ->takeProfitPrice(45000)  // Фиксированный Take Profit
+    ->stopLossPercent(5)      // Stop Loss 5% ниже
+    ->takeProfitPercent(15)   // Take Profit 15% выше
     ->execute();
 ```
-
-### Расширенные параметры
-
-```php
-$order = Bingx::trade()->order()
-    ->futures()
-    ->symbol('BTC-USDT')
-    ->buy()
-    ->long()
-    ->type('STOP_MARKET')
-    ->margin(150)
-    ->leverage(10)
-    ->stopPrice(48000)              // Триггер для входа
-    ->stopGuaranteed()              // Гарантированный стоп
-    ->stopLoss(47000)               // Защитный стоп-лосс
-    ->takeProfit(51000)             // Тейк-профит
-    ->reduceOnly()                  // Не увеличивать позицию
-    ->clientOrderId('strategy-001')
-    ->workingType('MARK_PRICE')
-    ->newOrderRespType('FULL')
-    ->recvWindow(5000)
-    ->execute();
-```
-
-### Доступные методы OrderBuilder
-
-| Метод | Описание | Применение |
-|-------|---------|-----------|
-| `spot()` / `futures()` | Тип рынка | Обязательно |
-| `symbol('BTC-USDT')` | Торговая пара | Обязательно |
-| `buy()` / `sell()` | Направление | Обязательно |
-| `type('MARKET\|LIMIT\|STOP')` | Тип ордера | Обязательно |
-| `long()` / `short()` | Позиция | Фьючерсы |
-| `leverage(10)` | Плечо (1-125) | Фьючерсы |
-| `quantity(0.001)` | Размер | Спот |
-| `margin(100)` | Маржа | Фьючерсы |
-| `price(50000)` | Цена | LIMIT/STOP |
-| `stopLoss(49000)` | Стоп-лосс (цена) | Фьючерсы |
-| `stopLossPercent(5)` | Стоп-лосс (%) | Фьючерсы |
-| `takeProfit(52000)` | Тейк-профит (цена) | Фьючерсы |
-| `takeProfitPercent(10)` | Тейк-профит (%) | Фьючерсы |
-| `clientOrderId('id')` | Пользовательский ID | Все типы |
-| `timeInForce('GTC')` | Время жизни (GTC/IOC/FOK) | LIMIT/STOP |
-| `reduceOnly()` | Только закрытие позиции | Фьючерсы |
-| `stopPrice(48000)` | Триггер-цена | Условные ордера |
-| `workingType('MARK_PRICE')` | Тип триггера | Фьючерсы |
-| `newOrderRespType('FULL')` | Формат ответа | Все типы |
-| `test()` | Тестовый ордер | Все типы |
 
 ---
 
 ## ⚠️ Обработка ошибок
 
-Библиотека предоставляет кастомные исключения для разных типов ошибок:
+Библиотека предоставляет пользовательские исключения для разных типов ошибок:
 
 ```php
 use Tigusigalpa\BingX\Exceptions\{
@@ -803,19 +514,19 @@ try {
     $balance = Bingx::account()->getBalance();
 } catch (AuthenticationException $e) {
     // Ошибка аутентификации (неверный ключ/подпись)
-    echo "Auth error: " . $e->getMessage();
+    echo "Ошибка авторизации: " . $e->getMessage();
 } catch (RateLimitException $e) {
     // Превышен лимит запросов
-    echo "Rate limit exceeded. Retry after: " . $e->getRetryAfter();
+    echo "Превышен лимит. Повторить после: " . $e->getRetryAfter();
 } catch (InsufficientBalanceException $e) {
     // Недостаточно средств
-    echo "Insufficient balance";
+    echo "Недостаточный баланс";
 } catch (ApiException $e) {
     // Ошибка API (бизнес-логика)
-    echo "API error: " . $e->getErrorCode() . " - " . $e->getMessage();
+    echo "Ошибка API: " . $e->getErrorCode() . " - " . $e->getMessage();
 } catch (BingxException $e) {
     // Общие ошибки библиотеки
-    echo "BingX error: " . $e->getMessage();
+    echo "Ошибка BingX: " . $e->getMessage();
 }
 ```
 
@@ -823,19 +534,19 @@ try {
 
 ## 🧪 Тестирование
 
-### Установка зависимостей
+### Установить зависимости
 
 ```bash
 composer install --dev
 ```
 
-### Настройка окружения
+### Настроить окружение
 
 ```bash
 cp tests/.env.example tests/.env
 ```
 
-Заполните `tests/.env`:
+Заполнить `tests/.env`:
 
 ```env
 BINGX_API_KEY=your_api_key_here
@@ -848,10 +559,10 @@ BINGX_TEST_MARGIN=100
 BINGX_TEST_QUANTITY=0.001
 ```
 
-### Запуск тестов
+### Запустить тесты
 
 ```bash
-# Только безопасные тесты (чтение данных)
+# Только безопасные тесты (только чтение)
 vendor/bin/phpunit
 
 # Все тесты включая опасные операции
@@ -861,17 +572,7 @@ vendor/bin/phpunit --group dangerous
 vendor/bin/phpunit tests/Integration/MarketServiceTest.php
 vendor/bin/phpunit tests/Integration/AccountServiceTest.php
 vendor/bin/phpunit tests/Integration/TradeServiceTest.php
-
-# Только Unit тесты
-vendor/bin/phpunit tests/Unit/
 ```
-
-### Типы тестов
-
-- **Unit тесты** — проверяют базовую функциональность без API вызовов
-- **Integration тесты** — проверяют реальные эндпоинты BingX API
-- **Safe тесты** (`@group safe`) — только чтение данных
-- **Dangerous тесты** (`@group dangerous`) — операции, изменяющие данные
 
 ---
 
@@ -879,29 +580,32 @@ vendor/bin/phpunit tests/Unit/
 
 ### Полное покрытие API
 
-| Сервис | Методов | Статус |
-|--------|--------|--------|
-| Market Service | 28 | ✅ |
-| Account Service | 30 | ✅ |
-| Trade Service | 41 | ✅ |
-| Wallet Service | 6 | ✅ |
-| Spot Account Service | 8 | ✅ |
-| Contract Service | 3 | ✅ |
-| Listen Key Service | 3 | ✅ |
-| **Всего** | **119+** | **100% покрытие** |
+| Сервис                       | Методов | Статус            |
+|------------------------------|---------|-------------------|
+| **USDT-M Perpetual Futures** |         |                   |
+| Market Service               | 40      | ✅                 |
+| TWAP Service                 | 7       | ✅                 |
+| Account Service              | 39      | ✅                 |
+| Trade Service                | 54      | ✅                 |
+| Wallet Service               | 6       | ✅                 |
+| Spot Account Service         | 8       | ✅                 |
+| Contract Service             | 3       | ✅                 |
+| Listen Key Service           | 3       | ✅                 |
+| **Coin-M Perpetual Futures** |         |                   |
+| Coin-M Market Service        | 6       | ✅                 |
+| Coin-M Trade Service         | 17      | ✅                 |
+| Coin-M Listen Key Service    | 3       | ✅                 |
+| **Всего**                    | **186** | **100% покрытие** |
 
-### Ключевые особенности
+### Ключевые возможности
 
-- ✅ Все эндпоинты Market API
-- ✅ Полный Account API
-- ✅ Расширенный Trade API
+- ✅ Все Market API эндпоинты (v1, v2, v3)
+- ✅ Quote API для оптимизированных рыночных данных
+- ✅ TWAP ордера для алгоритмической торговли
+- ✅ Полный Account API с управлением позициями
+- ✅ Расширенный Trade API с продвинутыми функциями
 - ✅ Wallet и Spot Account API
 - ✅ WebSocket потоки данных
-- ✅ OrderBuilder для сложных ордеров
-- ✅ Анализ настроений рынка
-- ✅ Управление активами и dust конвертация
-- ✅ Исторические данные и статистика
-- ✅ Полная безопасность и обработка ошибок
 
 ---
 
@@ -909,15 +613,17 @@ vendor/bin/phpunit tests/Unit/
 
 - **BingX API** — [https://bingx-api.github.io/docs/](https://bingx-api.github.io/docs/)
 - **GitHub репозиторий** — [https://github.com/tigusigalpa/bingx-php](https://github.com/tigusigalpa/bingx-php)
-- **Issues & Support** — [GitHub Issues](https://github.com/tigusigalpa/bingx-php/issues)
+- **Проблемы и поддержка** — [GitHub Issues](https://github.com/tigusigalpa/bingx-php/issues)
 
 ---
 
 ## 🏷️ Версии
 
-- **2.0.0** — Полный рефакторинг: модульная архитектура, обработка ошибок, 100% API покрытие
-- **1.0.0** — Базовая авторизация и обертки
-- **0.1.0** — Первоначальная версия
+- **2.2.0** — Coin-M Perpetual Futures API (23 метода), поддержка контрактов с крипто-маржой
+- **2.1.0** — Quote API, TWAP ордера, расширенные торговые функции, управление позициями (160+ методов)
+- **2.0.0** — Полный рефакторинг: модульная архитектура, обработка ошибок, 100% покрытие API
+- **1.0.0** — Базовая аутентификация и обёртки
+- **0.1.0** — Первый релиз
 
 ---
 
@@ -935,29 +641,29 @@ MIT License — см. файл [LICENSE](LICENSE) для деталей.
 
 ---
 
-## 🤝 Вклад в разработку
+## 🤝 Участие в разработке
 
-Pull requests приветствуются! Пожалуйста, убедитесь, что:
+Pull requests приветствуются! Пожалуйста, убедитесь что:
 
-1. Код соответствует PSR-12
+1. Код следует PSR-12
 2. Добавлены тесты для новой функциональности
 3. Обновлена документация
 
-### Как начать разработку
+### Начало разработки
 
 ```bash
-# Fork репозиторий
+# Форкнуть репозиторий
 git clone https://github.com/your-username/bingx-php.git
 cd bingx-php
 
-# Создать feature branch
+# Создать ветку функции
 git checkout -b feature/YourFeature
 
-# Внести изменения и тесты
+# Внести изменения и добавить тесты
 # Запустить тесты
 vendor/bin/phpunit
 
-# Commit и push
+# Закоммитить и отправить
 git commit -m "Add your feature"
 git push origin feature/YourFeature
 
@@ -970,6 +676,6 @@ git push origin feature/YourFeature
 
 **⭐ Если эта библиотека помогла вам, поставьте звезду на [GitHub](https://github.com/tigusigalpa/bingx-php)!**
 
-**BingX PHP SDK** — Полнофункциональный клиент для BingX API с 100% покрытием эндпоинтов и продвинутыми возможностями торговли.
+**BingX PHP SDK** — полнофункциональный клиент для BingX API со 100% покрытием эндпоинтов и расширенными торговыми возможностями.
 
 </div>

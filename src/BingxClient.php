@@ -21,6 +21,7 @@ class BingxClient
     protected ListenKeyService $listenKey;
     protected WalletService $wallet;
     protected SpotAccountService $spotAccount;
+    protected ?CoinMClient $coinMClient = null;
 
     public function __construct(
         string $apiKey, 
@@ -115,6 +116,37 @@ class BingxClient
     public function spotAccount(): SpotAccountService
     {
         return $this->spotAccount;
+    }
+
+    /**
+     * Get Coin-M Perpetual Futures Client
+     * 
+     * Provides access to Coin-Margined perpetual futures API.
+     * These contracts are margined and settled in cryptocurrency (BTC, ETH, etc.)
+     * instead of USDT.
+     * 
+     * @return CoinMClient
+     * 
+     * @example
+     * // Get Coin-M market data
+     * $ticker = Bingx::coinM()->market()->getTicker('BTC-USD');
+     * 
+     * // Place Coin-M order
+     * $order = Bingx::coinM()->trade()->createOrder([
+     *     'symbol' => 'BTC-USD',
+     *     'side' => 'BUY',
+     *     'positionSide' => 'LONG',
+     *     'type' => 'MARKET',
+     *     'quantity' => 100
+     * ]);
+     */
+    public function coinM(): CoinMClient
+    {
+        if ($this->coinMClient === null) {
+            $this->coinMClient = new CoinMClient($this->httpClient);
+        }
+        
+        return $this->coinMClient;
     }
 
     /**

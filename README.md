@@ -1,20 +1,20 @@
 # BingX PHP SDK
 
+![BingX PHP SDK](https://github.com/user-attachments/assets/bc9acf4c-79c7-4e02-bb8d-75f2d8784b29)
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/bc9acf4c-79c7-4e02-bb8d-75f2d8784b29" alt="BingX PHP SDK" style="max-width: 100%; height: auto;">
-  
-  [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-blue?style=flat-square&logo=php)](https://www.php.net/)
-  [![Composer](https://img.shields.io/badge/composer-v2-orange?style=flat-square&logo=composer)](https://getcomposer.org/)
-  [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
-  [![GitHub Stars](https://img.shields.io/github/stars/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php)
-  [![Latest Release](https://img.shields.io/github/v/release/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php/releases)
-  [![Test Coverage](https://img.shields.io/badge/coverage-119%2B%20tests-brightgreen?style=flat-square)](#-testing)
-  
-  **Full-Featured PHP SDK for BingX Swap V2 API**
-  
-  Cryptocurrency Trading | Market Data | WebSocket Streams | Laravel Integration
-  
-  [English](./README.md) | [Русский](./README-ru.md)
+
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-blue?style=flat-square&logo=php)](https://www.php.net/)
+[![Composer](https://img.shields.io/badge/composer-v2-orange?style=flat-square&logo=composer)](https://getcomposer.org/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php)
+[![Latest Release](https://img.shields.io/github/v/release/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php/releases)
+[![Test Coverage](https://img.shields.io/badge/coverage-119%2B%20tests-brightgreen?style=flat-square)](#-testing)
+
+**Full-Featured PHP SDK for BingX API**
+
+USDT-M & Coin-M Futures | Market Data | WebSocket Streams | Laravel Integration
+
+**🌐 Language:** English | [Русский](README-ru.md)
 </div>
 
 ---
@@ -26,30 +26,39 @@
 - [Quick Start](#-quick-start)
 - [Installation](#-installation)
 - [Usage](#-usage)
-  - [Market Service](#-market-service---market-data)
-  - [Account Service](#-account-service---account-management)
-  - [Trade Service](#-trade-service---trading-operations)
-  - [WebSocket API](#-websocket-api)
+    - [Market Service](#-market-service---market-data)
+    - [Quote API](#-quote-api---optimized-market-data)
+    - [TWAP Orders](#-twap-orders---algorithmic-trading)
+    - [Account Service](#-account-service---account-management)
+    - [Trade Service](#-trade-service---trading-operations)
+    - [WebSocket API](#-websocket-api)
+    - [Coin-M Perpetual Futures](#-coin-m-perpetual-futures---crypto-margined-contracts)
 - [OrderBuilder](#-orderbuilder---advanced-order-creation)
 - [Error Handling](#-error-handling)
 - [Testing](#-testing)
 - [Documentation](#-documentation)
+- [Versions](#-versions)
 - [License](#-license)
 
 ---
 
 ## ✨ About
 
-**BingX PHP SDK** is a professional, feature-rich library for working with the BingX Swap V2 API.
+**BingX PHP SDK** is a professional, feature-rich library for working with the BingX API (USDT-M & Coin-M Perpetual
+Futures).
 
 Built with modern PHP practices and provides:
-- ✅ **100% coverage** of all BingX API endpoints
+
+- ✅ **100% coverage** of USDT-M Perpetual Futures API
+- ✅ **Coin-M Perpetual Futures** fully implemented
 - ✅ **Modular architecture** with separate services
 - ✅ **Laravel 8-12 integration** with auto-discovery
 - ✅ **Advanced error handling** with custom exceptions
 - ✅ **WebSocket support** for streaming data
 - ✅ **Complete security** with HMAC-SHA256 signatures
-- ✅ **119+ methods** for full trading control
+- ✅ **186 methods** for full trading control
+- ✅ **Quote API** for optimized market data
+- ✅ **TWAP orders** for algorithmic trading
 
 ---
 
@@ -57,15 +66,21 @@ Built with modern PHP practices and provides:
 
 ### 📊 Supported Services
 
-| Service | Description | Methods |
-|---------|-------------|---------|
-| 🏪 **Market Service** | Market data, symbols, prices, candles, trades | 28 |
-| 👤 **Account Service** | Balance, positions, leverage, margin, fees | 30 |
-| 🔄 **Trade Service** | Orders, trade history, position management | 41 |
-| 💰 **Wallet Service** | Deposits, withdrawals, wallet addresses | 6 |
-| 💵 **Spot Account Service** | Spot balance, transfers, internal transfers | 8 |
-| 📋 **Contract Service** | Standard contract API | 3 |
-| 🔐 **Listen Key Service** | WebSocket authentication | 3 |
+| Service                      | Description                                         | Methods |
+|------------------------------|-----------------------------------------------------|---------|
+| **USDT-M Perpetual Futures** |                                                     |         |
+| 🏪 **Market Service**        | Market data, Quote API, symbols, prices, candles    | 40      |
+| ⏱️ **TWAP Service**          | Time-Weighted Average Price algorithmic orders      | 7       |
+| 👤 **Account Service**       | Balance, positions, leverage, margin, assets        | 39      |
+| 🔄 **Trade Service**         | Orders, trade history, position management          | 54      |
+| 💰 **Wallet Service**        | Deposits, withdrawals, wallet addresses             | 6       |
+| 💵 **Spot Account Service**  | Spot balance, transfers, internal transfers         | 8       |
+| 📋 **Contract Service**      | Standard contract API                               | 3       |
+| 🔐 **Listen Key Service**    | WebSocket authentication                            | 3       |
+| **Coin-M Perpetual Futures** |                                                     |         |
+| 🪙 **Coin-M Market**         | Contract info, ticker, depth, klines, open interest | 6       |
+| 🪙 **Coin-M Trade**          | Orders, positions, leverage, margin, balance        | 17      |
+| 🪙 **Coin-M Listen Key**     | WebSocket authentication for Coin-M                 | 3       |
 
 ### 🛡️ Security
 
@@ -140,9 +155,12 @@ In your root `composer.json`:
 
 ```json
 {
-  "repositories": [
-    { "type": "path", "url": "packages/bingx-php" }
-  ]
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/bingx-php"
+        }
+    ]
 }
 ```
 
@@ -278,6 +296,188 @@ $historicalRatio = Bingx::market()->getHistoricalTopLongShortRatio(
 // Contract basis data
 $basis = Bingx::market()->getBasis('BTC-USDT', 'PERPETUAL', 100);
 ```
+
+---
+
+### 📊 Quote API - Optimized Market Data
+
+Quote API provides real-time market data with improved performance for high-frequency trading.
+
+#### Contract Information
+
+```php
+// Get all contract specifications
+$contracts = Bingx::market()->getContracts();
+
+foreach ($contracts as $contract) {
+    echo "Symbol: {$contract['symbol']}\n";
+    echo "Min Qty: {$contract['minQty']}\n";
+    echo "Max Leverage: {$contract['maxLeverage']}\n";
+}
+```
+
+#### Market Depth (Quote API)
+
+```php
+// Order book via Quote API (optimized)
+$depth = Bingx::market()->getQuoteDepth('BTC-USDT', 20);
+
+echo "Best Bid: {$depth['bids'][0][0]}\n";
+echo "Best Ask: {$depth['asks'][0][0]}\n";
+
+// Best bid/ask prices
+$bookTicker = Bingx::market()->getBookTicker('BTC-USDT');
+echo "Bid: {$bookTicker['bidPrice']} / Ask: {$bookTicker['askPrice']}\n";
+```
+
+#### Price Data (Quote API)
+
+```php
+// 24hr ticker via Quote API
+$ticker = Bingx::market()->getQuoteTicker('BTC-USDT');
+echo "Price: {$ticker['lastPrice']}\n";
+echo "24h Change: {$ticker['priceChangePercent']}%\n";
+
+// Funding rate
+$fundingRate = Bingx::market()->getQuoteFundingRate('BTC-USDT');
+echo "Funding Rate: {$fundingRate['fundingRate']}\n";
+
+// Open interest
+$openInterest = Bingx::market()->getQuoteOpenInterest('BTC-USDT');
+echo "Open Interest: {$openInterest['openInterest']}\n";
+
+// Premium index
+$premium = Bingx::market()->getPremiumIndex('BTC-USDT');
+echo "Mark Price: {$premium['markPrice']}\n";
+```
+
+#### Recent Trades (Quote API)
+
+```php
+// Get recent trades via Quote API
+$trades = Bingx::market()->getQuoteTrades('BTC-USDT', 100);
+
+foreach ($trades as $trade) {
+    $side = $trade['isBuyerMaker'] ? 'SELL' : 'BUY';
+    echo "{$side}: {$trade['qty']} @ {$trade['price']}\n";
+}
+```
+
+#### Advanced Market Data
+
+```php
+// K-lines v3 (improved performance)
+$klines = Bingx::market()->getKlinesV3('BTC-USDT', '1h', 500);
+
+// Trading rules
+$rules = Bingx::market()->getTradingRules('BTC-USDT');
+echo "Min Qty: {$rules['minQty']}\n";
+echo "Max Qty: {$rules['maxQty']}\n";
+
+// Historical trades (v1)
+$historicalTrades = Bingx::market()->getHistoricalTradesV1('BTC-USDT', 500);
+
+// Mark price klines (v1)
+$markKlines = Bingx::market()->getMarkPriceKlinesV1('BTC-USDT', '1h', 500);
+
+// Ticker price (v1)
+$tickerPrice = Bingx::market()->getTickerPriceV1('BTC-USDT');
+```
+
+**📖 See detailed examples:** [EXAMPLES_QUOTE_API.md](EXAMPLES_QUOTE_API.md)
+
+---
+
+### ⏱️ TWAP Orders - Algorithmic Trading
+
+TWAP (Time-Weighted Average Price) orders allow executing large orders over time to minimize market impact.
+
+#### Creating TWAP Orders
+
+```php
+// Simple TWAP buy order
+$order = Bingx::twap()->buy(
+    symbol: 'BTC-USDT',
+    quantity: 1.0,
+    duration: 1800, // 30 minutes in seconds
+    price: null, // null = market price
+    positionSide: 'LONG'
+);
+
+echo "TWAP Order ID: {$order['orderId']}\n";
+
+// TWAP sell order with limit price
+$order = Bingx::twap()->sell(
+    symbol: 'ETH-USDT',
+    quantity: 2.0,
+    duration: 3600, // 1 hour
+    price: 2000.0, // limit price
+    positionSide: 'SHORT'
+);
+```
+
+#### Advanced TWAP Order
+
+```php
+// Create TWAP order with custom parameters
+$order = Bingx::twap()->createOrder([
+    'symbol' => 'BTC-USDT',
+    'side' => 'BUY',
+    'positionSide' => 'LONG',
+    'quantity' => 5.0,
+    'duration' => 7200, // 2 hours
+    'price' => 45000.0,
+    'clientOrderId' => 'my-twap-001'
+]);
+```
+
+#### Managing TWAP Orders
+
+```php
+// Cancel TWAP order
+Bingx::twap()->cancelOrder('orderId', 'BTC-USDT');
+
+// Get open TWAP orders
+$openOrders = Bingx::twap()->getOpenOrders('BTC-USDT');
+
+// Get TWAP order history
+$history = Bingx::twap()->getHistoryOrders(
+    symbol: 'BTC-USDT',
+    limit: 100,
+    startTime: strtotime('-24 hours') * 1000,
+    endTime: time() * 1000
+);
+
+// Get detailed order information
+$details = Bingx::twap()->getOrderDetail('orderId');
+
+echo "Progress: {$details['executedQty']}/{$details['totalQty']}\n";
+echo "Average Price: {$details['avgPrice']}\n";
+echo "Status: {$details['status']}\n";
+```
+
+#### Monitoring TWAP Execution
+
+```php
+// Monitor TWAP order progress
+$orderId = $order['orderId'];
+
+while (true) {
+    $details = Bingx::twap()->getOrderDetail($orderId);
+    
+    $progress = ($details['executedQty'] / $details['totalQty']) * 100;
+    echo "Progress: " . round($progress, 2) . "%\n";
+    
+    if (in_array($details['status'], ['FILLED', 'CANCELLED'])) {
+        echo "Order completed: {$details['status']}\n";
+        break;
+    }
+    
+    sleep(60); // Check every minute
+}
+```
+
+**📖 See detailed examples:** [EXAMPLES_TWAP.md](EXAMPLES_TWAP.md)
 
 ---
 
@@ -677,6 +877,141 @@ Bingx::listenKey()->delete($listenKey);
 
 ---
 
+### 🪙 Coin-M Perpetual Futures - Crypto-Margined Contracts
+
+Coin-M Perpetual Futures are contracts margined and settled in cryptocurrency (e.g., BTC, ETH) instead of USDT. These
+contracts use the `/openApi/cswap/v1/` API endpoints.
+
+#### Key Differences from USDT-M Futures
+
+| Feature                | USDT-M Futures      | Coin-M Futures                  |
+|------------------------|---------------------|---------------------------------|
+| **Margin Currency**    | USDT (stablecoin)   | Cryptocurrency (BTC, ETH, etc.) |
+| **Settlement**         | USDT                | Base cryptocurrency             |
+| **API Path**           | `/openApi/swap/v2/` | `/openApi/cswap/v1/`            |
+| **Symbol Format**      | BTC-USDT            | BTC-USD, ETH-USD                |
+| **Price Denomination** | USD value           | Contracts per coin              |
+
+#### Market Data Endpoints
+
+```php
+// Contract information
+$contracts = Bingx::coinM()->market()->getContracts();
+
+// Current price and funding rate
+$ticker = Bingx::coinM()->market()->getTicker('BTC-USD');
+
+// Open positions (open interest)
+$openPositions = Bingx::coinM()->market()->getOpenPositions('BTC-USD');
+
+// K-line data
+$klines = Bingx::coinM()->market()->getKlines('BTC-USD', '1h', 100);
+
+// Order book depth
+$depth = Bingx::coinM()->market()->getDepth('BTC-USD', 20);
+
+// 24-hour price change
+$priceChange = Bingx::coinM()->market()->get24hrPriceChange('BTC-USD');
+```
+
+#### Trading Endpoints
+
+```php
+// Place order
+$order = Bingx::coinM()->trade()->createOrder([
+    'symbol' => 'BTC-USD',
+    'side' => 'BUY',
+    'positionSide' => 'LONG',
+    'type' => 'LIMIT',
+    'quantity' => 100,
+    'price' => 50000
+]);
+
+// Query leverage
+$leverage = Bingx::coinM()->trade()->getLeverage('BTC-USD');
+
+// Set leverage
+Bingx::coinM()->trade()->setLeverage('BTC-USD', 10);
+
+// Get positions
+$positions = Bingx::coinM()->trade()->getPositions('BTC-USD');
+
+// Get account balance
+$balance = Bingx::coinM()->trade()->getBalance();
+
+// Cancel all orders
+Bingx::coinM()->trade()->cancelAllOrders('BTC-USD');
+
+// Close all positions
+Bingx::coinM()->trade()->closeAllPositions('BTC-USD');
+
+// Query margin type
+$marginType = Bingx::coinM()->trade()->getMarginType('BTC-USD');
+
+// Set margin type (ISOLATED/CROSSED)
+Bingx::coinM()->trade()->setMarginType('BTC-USD', 'ISOLATED');
+
+// Adjust isolated margin
+Bingx::coinM()->trade()->adjustMargin('BTC-USD', 'LONG', 100, 1);
+```
+
+#### Listen Key Management
+
+```php
+// Generate listen key for WebSocket
+$response = Bingx::coinM()->listenKey()->generate();
+$listenKey = $response['listenKey'];
+
+// Extend listen key validity (every 30 minutes)
+Bingx::coinM()->listenKey()->extend($listenKey);
+
+// Delete listen key when done
+Bingx::coinM()->listenKey()->delete($listenKey);
+```
+
+> **Note:** WebSocket streams for Coin-M are planned for future releases. Currently, you can use the listen key
+> management for authentication.
+
+#### Use Cases for Coin-M Futures
+
+**Advantages:**
+
+- ✅ Hedge cryptocurrency holdings without selling
+- ✅ Earn yield in the base cryptocurrency
+- ✅ No stablecoin exposure risk
+- ✅ Better for long-term crypto holders
+
+**When to Use:**
+
+- You hold BTC/ETH and want to hedge without converting to USDT
+- You want to accumulate more BTC/ETH through trading
+- You prefer crypto-denominated P&L
+- You want to avoid stablecoin regulatory risks
+
+**Example Strategy:**
+
+```php
+// Hedge 1 BTC holding with Coin-M short position
+$btcHolding = 1.0; // 1 BTC in wallet
+$contractValue = 100; // USD per contract
+
+// Open short position to hedge
+$hedgeOrder = Bingx::coinM()->trade()->createOrder([
+    'symbol' => 'BTC-USD',
+    'side' => 'SELL',
+    'positionSide' => 'SHORT',
+    'type' => 'MARKET',
+    'quantity' => $btcHolding * $contractValue // 100 contracts
+]);
+
+// If BTC price drops, short position gains offset wallet loss
+// If BTC price rises, wallet gains offset short position loss
+```
+
+**📖 For implementation status and updates, see:** [GitHub Issues](https://github.com/tigusigalpa/bingx-php/issues)
+
+---
+
 ## 🎯 OrderBuilder - Advanced Order Creation
 
 OrderBuilder provides a convenient fluent interface for creating complex orders with automatic calculation.
@@ -763,28 +1098,28 @@ $order = Bingx::trade()->order()
 
 ### Available OrderBuilder Methods
 
-| Method | Description | Use Case |
-|--------|-------------|----------|
-| `spot()` / `futures()` | Market type | Required |
-| `symbol('BTC-USDT')` | Trading pair | Required |
-| `buy()` / `sell()` | Direction | Required |
-| `type('MARKET\|LIMIT\|STOP')` | Order type | Required |
-| `long()` / `short()` | Position | Futures |
-| `leverage(10)` | Leverage (1-125) | Futures |
-| `quantity(0.001)` | Order size | Spot |
-| `margin(100)` | Margin | Futures |
-| `price(50000)` | Price | LIMIT/STOP |
-| `stopLoss(49000)` | Stop loss (price) | Futures |
-| `stopLossPercent(5)` | Stop loss (%) | Futures |
-| `takeProfit(52000)` | Take profit (price) | Futures |
-| `takeProfitPercent(10)` | Take profit (%) | Futures |
-| `clientOrderId('id')` | Custom ID | All types |
-| `timeInForce('GTC')` | Time in force (GTC/IOC/FOK) | LIMIT/STOP |
-| `reduceOnly()` | Close position only | Futures |
-| `stopPrice(48000)` | Trigger price | Conditional |
-| `workingType('MARK_PRICE')` | Trigger type | Futures |
-| `newOrderRespType('FULL')` | Response format | All types |
-| `test()` | Test order | All types |
+| Method                        | Description                 | Use Case    |
+|-------------------------------|-----------------------------|-------------|
+| `spot()` / `futures()`        | Market type                 | Required    |
+| `symbol('BTC-USDT')`          | Trading pair                | Required    |
+| `buy()` / `sell()`            | Direction                   | Required    |
+| `type('MARKET\|LIMIT\|STOP')` | Order type                  | Required    |
+| `long()` / `short()`          | Position                    | Futures     |
+| `leverage(10)`                | Leverage (1-125)            | Futures     |
+| `quantity(0.001)`             | Order size                  | Spot        |
+| `margin(100)`                 | Margin                      | Futures     |
+| `price(50000)`                | Price                       | LIMIT/STOP  |
+| `stopLoss(49000)`             | Stop loss (price)           | Futures     |
+| `stopLossPercent(5)`          | Stop loss (%)               | Futures     |
+| `takeProfit(52000)`           | Take profit (price)         | Futures     |
+| `takeProfitPercent(10)`       | Take profit (%)             | Futures     |
+| `clientOrderId('id')`         | Custom ID                   | All types   |
+| `timeInForce('GTC')`          | Time in force (GTC/IOC/FOK) | LIMIT/STOP  |
+| `reduceOnly()`                | Close position only         | Futures     |
+| `stopPrice(48000)`            | Trigger price               | Conditional |
+| `workingType('MARK_PRICE')`   | Trigger type                | Futures     |
+| `newOrderRespType('FULL')`    | Response format             | All types   |
+| `test()`                      | Test order                  | All types   |
 
 ---
 
@@ -881,29 +1216,32 @@ vendor/bin/phpunit tests/Unit/
 
 ### Complete API Coverage
 
-| Service | Methods | Status |
-|---------|---------|--------|
-| Market Service | 28 | ✅ |
-| Account Service | 30 | ✅ |
-| Trade Service | 41 | ✅ |
-| Wallet Service | 6 | ✅ |
-| Spot Account Service | 8 | ✅ |
-| Contract Service | 3 | ✅ |
-| Listen Key Service | 3 | ✅ |
-| **Total** | **119+** | **100% Coverage** |
+| Service                      | Methods | Status            |
+|------------------------------|---------|-------------------|
+| **USDT-M Perpetual Futures** |         |                   |
+| Market Service               | 40      | ✅                 |
+| TWAP Service                 | 7       | ✅                 |
+| Account Service              | 39      | ✅                 |
+| Trade Service                | 54      | ✅                 |
+| Wallet Service               | 6       | ✅                 |
+| Spot Account Service         | 8       | ✅                 |
+| Contract Service             | 3       | ✅                 |
+| Listen Key Service           | 3       | ✅                 |
+| **Coin-M Perpetual Futures** |         |                   |
+| Coin-M Market Service        | 6       | ✅                 |
+| Coin-M Trade Service         | 17      | ✅                 |
+| Coin-M Listen Key Service    | 3       | ✅                 |
+| **Total**                    | **186** | **100% Coverage** |
 
 ### Key Features
 
-- ✅ All Market API endpoints
-- ✅ Complete Account API
-- ✅ Extended Trade API
+- ✅ All Market API endpoints (v1, v2, v3)
+- ✅ Quote API for optimized market data
+- ✅ TWAP orders for algorithmic trading
+- ✅ Complete Account API with position management
+- ✅ Extended Trade API with advanced features
 - ✅ Wallet and Spot Account API
 - ✅ WebSocket data streams
-- ✅ OrderBuilder for complex orders
-- ✅ Market sentiment analysis
-- ✅ Asset management and dust conversion
-- ✅ Historical data and statistics
-- ✅ Complete security and error handling
 
 ---
 
@@ -917,6 +1255,8 @@ vendor/bin/phpunit tests/Unit/
 
 ## 🏷️ Versions
 
+- **2.2.0** — Coin-M Perpetual Futures API (23 methods), crypto-margined contracts support
+- **2.1.0** — Quote API, TWAP orders, advanced trading features, position management (160+ methods)
 - **2.0.0** — Complete refactor: modular architecture, error handling, 100% API coverage
 - **1.0.0** — Basic authentication and wrappers
 - **0.1.0** — Initial release

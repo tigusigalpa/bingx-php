@@ -31,6 +31,9 @@ USDT-M & Coin-M Futures | Market Data | WebSocket Streams | Laravel Integration
     - [TWAP Orders](#-twap-orders---algorithmic-trading)
     - [Account Service](#-account-service---account-management)
     - [Trade Service](#-trade-service---trading-operations)
+    - [Wallet Service](#-wallet-service---wallet-management)
+    - [Spot Account Service](#-spot-account-service---spot-account)
+    - [Contract Service](#-contract-service---standard-futures)
     - [WebSocket API](#-websocket-api)
     - [Coin-M Perpetual Futures](#-coin-m-perpetual-futures---crypto-margined-contracts)
 - [OrderBuilder](#-orderbuilder---advanced-order-creation)
@@ -768,6 +771,34 @@ $internalTransfer = Bingx::spotAccount()->internalTransfer(
     amount: 50.0,
     transferType: 'FROM_MAIN_TO_SUB',
     subUid: '123456'
+);
+```
+
+---
+
+### 📋 Contract Service - Standard Futures
+
+Standard Futures API provides access to standard contract positions, orders, and balance.
+
+```php
+// Get all positions for standard contracts
+$positions = Bingx::contract()->getAllPositions();
+
+// Get historical orders for a specific symbol
+$orders = Bingx::contract()->getAllOrders(
+    symbol: 'BTC-USDT',
+    limit: 100,
+    startTime: strtotime('-7 days') * 1000,
+    endTime: time() * 1000
+);
+
+// Query standard contract account balance
+$balance = Bingx::contract()->getBalance();
+
+// With custom parameters
+$positions = Bingx::contract()->getAllPositions(
+    timestamp: time() * 1000,
+    recvWindow: 5000
 );
 ```
 

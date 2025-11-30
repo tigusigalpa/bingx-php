@@ -31,6 +31,9 @@ USDT-M & Coin-M Фьючерсы | Рыночные данные | WebSocket п�
     - [TWAP Orders](#-twap-orders---алгоритмическая-торговля)
     - [Account Service](#-account-service---управление-аккаунтом)
     - [Trade Service](#-trade-service---торговые-операции)
+    - [Wallet Service](#-wallet-service---управление-кошельком)
+    - [Spot Account Service](#-spot-account-service---спотовый-аккаунт)
+    - [Contract Service](#-contract-service---стандартные-фьючерсы)
     - [WebSocket API](#-websocket-api)
     - [Coin-M Perpetual Futures](#-coin-m-perpetual-futures---контракты-с-крипто-маржой)
 - [OrderBuilder](#-orderbuilder---расширенное-создание-ордеров)
@@ -374,6 +377,103 @@ Bingx::trade()->cancelOrder('BTC-USDT', '123456789');
 
 // Отменить все ордера для символа
 Bingx::trade()->cancelAllOrders('BTC-USDT');
+```
+
+---
+
+### 💰 Wallet Service - Управление кошельком
+
+```php
+// История депозитов
+$deposits = Bingx::wallet()->getDepositHistory(
+    coin: 'USDT',
+    status: 1,
+    startTime: strtotime('2024-01-01') * 1000,
+    endTime: strtotime('2024-01-31') * 1000
+);
+
+// Адрес для депозита
+$address = Bingx::wallet()->getDepositAddress('USDT', 'TRC20');
+
+// История выводов
+$withdrawals = Bingx::wallet()->getWithdrawalHistory(
+    coin: 'USDT',
+    status: 6
+);
+
+// Создать вывод
+$withdrawal = Bingx::wallet()->withdraw(
+    coin: 'USDT',
+    address: 'TXxx...xxx',
+    amount: 100.0,
+    network: 'TRC20'
+);
+
+// Информация о монетах
+$coins = Bingx::wallet()->getAllCoinInfo();
+```
+
+---
+
+### 💵 Spot Account Service - Спотовый аккаунт
+
+```php
+// Баланс спотового аккаунта
+$balance = Bingx::spotAccount()->getBalance();
+
+// Баланс фонда
+$fundBalance = Bingx::spotAccount()->getFundBalance();
+
+// Универсальный перевод
+$transfer = Bingx::spotAccount()->universalTransfer(
+    type: 'FUND_PFUTURES',
+    asset: 'USDT',
+    amount: 100.0
+);
+
+// История переводов
+$history = Bingx::spotAccount()->getAssetTransferRecords(
+    type: 'FUND_PFUTURES',
+    startTime: strtotime('2024-01-01') * 1000,
+    endTime: strtotime('2024-01-31') * 1000
+);
+
+// Внутренний перевод (основной -> суб-аккаунт)
+$internalTransfer = Bingx::spotAccount()->internalTransfer(
+    coin: 'USDT',
+    walletType: 'SPOT',
+    amount: 50.0,
+    transferType: 'FROM_MAIN_TO_SUB',
+    subUid: '123456'
+);
+```
+
+---
+
+### 📋 Contract Service - Стандартные фьючерсы
+
+API стандартных фьючерсов предоставляет доступ к позициям, ордерам и балансу стандартных контрактов.
+
+```php
+// Получить все позиции по стандартным контрактам
+$positions = Bingx::contract()->getAllPositions();
+
+// Получить исторические ордера для конкретного символа
+$orders = Bingx::contract()->getAllOrders(
+    symbol: 'BTC-USDT',
+    limit: 100,
+    startTime: strtotime('-7 days') * 1000,
+    endTime: time() * 1000
+);
+
+// Запросить баланс аккаунта стандартных контрактов
+$balance = Bingx::contract()->getBalance();
+
+// С пользовательскими параметрами
+$positions = Bingx::contract()->getAllPositions(
+    timestamp: time() * 1000,
+    recvWindow: 5000
+);
 ```
 
 ---

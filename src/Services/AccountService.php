@@ -433,4 +433,14 @@ class AccountService
     {
         return $this->client->request('POST', '/openApi/swap/v2/user/disableFastWithdrawSwitch');
     }
+
+    /**
+     * Get account API permissions
+     * 
+     * @return array Account API permissions information
+     */
+    public function getAccountApiPermissions(): array
+    {
+        return $this->client->request('GET', '/openApi/v1/account/apiPermissions');
+    }
 }

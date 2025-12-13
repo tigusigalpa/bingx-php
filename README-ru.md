@@ -59,7 +59,7 @@ USDT-M & Coin-M Фьючерсы | Рыночные данные | WebSocket п�
 - ✅ **Расширенная обработка ошибок** с пользовательскими исключениями
 - ✅ **Поддержка WebSocket** для потоковых данных
 - ✅ **Полная безопасность** с подписями HMAC-SHA256
-- ✅ **186 методов** для полного контроля торговли
+- ✅ **207 методов** для полного контроля торговли
 - ✅ **Quote API** для оптимизированных рыночных данных
 - ✅ **TWAP ордера** для алгоритмической торговли
 
@@ -78,6 +78,7 @@ USDT-M & Coin-M Фьючерсы | Рыночные данные | WebSocket п�
 | 🔄 **Trade Service**         | Ордера, история сделок, управление позициями              | 54      |
 | 💰 **Wallet Service**        | Депозиты, выводы, адреса кошельков                        | 6       |
 | 💵 **Spot Account Service**  | Спотовый баланс, переводы, внутренние переводы            | 8       |
+| 👥 **Sub-Account Service**   | Управление субаккаунтами, API ключи, переводы            | 20      |
 | 📋 **Contract Service**      | Стандартный API контрактов                                 | 3       |
 | 🔐 **Listen Key Service**    | Аутентификация WebSocket                                   | 3       |
 | **Coin-M Perpetual Futures** |                                                            |         |
@@ -446,6 +447,161 @@ $internalTransfer = Bingx::spotAccount()->internalTransfer(
     transferType: 'FROM_MAIN_TO_SUB',
     subUid: '123456'
 );
+
+// Получить балансы всех аккаунтов
+$allBalances = Bingx::spotAccount()->getAllAccountBalances();
+```
+
+---
+
+### 👥 Sub-Account Service - Управление субаккаунтами
+
+Полное управление субаккаунтами включая создание, управление API ключами, переводы и мониторинг.
+
+#### Создание и управление субаккаунтами
+
+```php
+// Создать новый субаккаунт
+$result = Bingx::subAccount()->createSubAccount('sub_account_001');
+
+// Получить UID аккаунта
+$uid = Bingx::subAccount()->getAccountUid();
+
+// Получить список всех субаккаунтов
+$subAccounts = Bingx::subAccount()->getSubAccountList();
+
+// Получить конкретный субаккаунт с пагинацией
+$subAccounts = Bingx::subAccount()->getSubAccountList(
+    subAccountString: 'sub_account_001',
+    current: 1,
+    size: 10
+);
+
+// Получить активы субаккаунта
+$assets = Bingx::subAccount()->getSubAccountAssets('12345678');
+
+// Обновить статус субаккаунта
+Bingx::subAccount()->updateSubAccountStatus('sub_account_001', 1); // 1: включить, 2: отключить
+
+// Получить балансы всех субаккаунтов
+$balances = Bingx::subAccount()->getAllSubAccountBalances();
+```
+
+#### Управление API ключами субаккаунтов
+
+```php
+// Создать API ключ для субаккаунта
+$apiKey = Bingx::subAccount()->createSubAccountApiKey(
+    subAccountString: 'sub_account_001',
+    label: 'Trading Bot',
+    permissions: ['spot' => true, 'futures' => true],
+    ip: '192.168.1.1' // Опциональный IP whitelist
+);
+
+// Запросить информацию об API ключе
+$apiKeys = Bingx::subAccount()->queryApiKey('sub_account_001');
+
+// Редактировать API ключ субаккаунта
+Bingx::subAccount()->editSubAccountApiKey(
+    subAccountString: 'sub_account_001',
+    apiKey: 'your_api_key',
+    permissions: ['spot' => true, 'futures' => false],
+    ip: '192.168.1.100'
+);
+
+// Удалить API ключ субаккаунта
+Bingx::subAccount()->deleteSubAccountApiKey('sub_account_001', 'your_api_key');
+```
+
+#### Переводы субаккаунтов
+
+```php
+// Авторизовать субаккаунт для внутренних переводов
+Bingx::subAccount()->authorizeSubAccountInternalTransfer('sub_account_001', 1); // 1: разрешить, 0: запретить
+
+// Перевод с основного на субаккаунт
+$transfer = Bingx::subAccount()->subAccountInternalTransfer(
+    coin: 'USDT',
+    walletType: 'SPOT',
+    amount: 100.0,
+    transferType: 'FROM_MAIN_TO_SUB',
+    toSubUid: '12345678'
+);
+
+// Перевод с субаккаунта на основной
+$transfer = Bingx::subAccount()->subAccountInternalTransfer(
+    coin: 'USDT',
+    walletType: 'SPOT',
+    amount: 50.0,
+    transferType: 'FROM_SUB_TO_MAIN',
+    fromSubUid: '12345678'
+);
+
+// Перевод между субаккаунтами
+$transfer = Bingx::subAccount()->subAccountInternalTransfer(
+    coin: 'USDT',
+    walletType: 'PERPETUAL',
+    amount: 25.0,
+    transferType: 'FROM_SUB_TO_SUB',
+    fromSubUid: '12345678',
+    toSubUid: '87654321',
+    clientId: 'transfer-001'
+);
+
+// Получить записи внутренних переводов
+$records = Bingx::subAccount()->getSubAccountInternalTransferRecords(
+    startTime: strtotime('-7 days') * 1000,
+    endTime: time() * 1000,
+    current: 1,
+    size: 50
+);
+
+// Перевод активов субаккаунта
+$assetTransfer = Bingx::subAccount()->subAccountAssetTransfer(
+    subUid: '12345678',
+    type: 'FUND_PFUTURES',
+    asset: 'USDT',
+    amount: 100.0
+);
+
+// Получить поддерживаемые монеты для переводов субаккаунта
+$supportedCoins = Bingx::subAccount()->getSubAccountTransferSupportedCoins('12345678');
+
+// Получить историю переводов активов
+$history = Bingx::subAccount()->getSubAccountAssetTransferHistory(
+    subUid: '12345678',
+    type: 'FUND_PFUTURES',
+    startTime: strtotime('-30 days') * 1000,
+    endTime: time() * 1000
+);
+```
+
+#### Управление депозитами субаккаунтов
+
+```php
+// Создать депозитный адрес для субаккаунта
+$address = Bingx::subAccount()->createSubAccountDepositAddress(
+    coin: 'USDT',
+    network: 'TRC20',
+    subUid: '12345678'
+);
+
+// Получить депозитный адрес субаккаунта
+$depositAddress = Bingx::subAccount()->getSubAccountDepositAddress(
+    coin: 'USDT',
+    subUid: '12345678',
+    network: 'TRC20'
+);
+
+// Получить историю депозитов субаккаунта
+$deposits = Bingx::subAccount()->getSubAccountDepositHistory(
+    subUid: '12345678',
+    coin: 'USDT',
+    status: 1, // 0: в ожидании, 1: успешно, 6: зачислено но нельзя вывести
+    startTime: strtotime('-30 days') * 1000,
+    endTime: time() * 1000,
+    limit: 100
+);
 ```
 
 ---
@@ -685,17 +841,18 @@ vendor/bin/phpunit tests/Integration/TradeServiceTest.php
 | **USDT-M Perpetual Futures** |         |                   |
 | Market Service               | 40      | ✅                 |
 | TWAP Service                 | 7       | ✅                 |
-| Account Service              | 39      | ✅                 |
+| Account Service              | 40      | ✅                 |
 | Trade Service                | 54      | ✅                 |
 | Wallet Service               | 6       | ✅                 |
-| Spot Account Service         | 8       | ✅                 |
+| Spot Account Service         | 9       | ✅                 |
+| Sub-Account Service          | 20      | ✅                 |
 | Contract Service             | 3       | ✅                 |
 | Listen Key Service           | 3       | ✅                 |
 | **Coin-M Perpetual Futures** |         |                   |
 | Coin-M Market Service        | 6       | ✅                 |
 | Coin-M Trade Service         | 17      | ✅                 |
 | Coin-M Listen Key Service    | 3       | ✅                 |
-| **Всего**                    | **186** | **100% покрытие** |
+| **Всего**                    | **207** | **100% покрытие** |
 
 ### Ключевые возможности
 

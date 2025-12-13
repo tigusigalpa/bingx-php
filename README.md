@@ -59,7 +59,7 @@ Built with modern PHP practices and provides:
 - ✅ **Advanced error handling** with custom exceptions
 - ✅ **WebSocket support** for streaming data
 - ✅ **Complete security** with HMAC-SHA256 signatures
-- ✅ **186 methods** for full trading control
+- ✅ **207 methods** for full trading control
 - ✅ **Quote API** for optimized market data
 - ✅ **TWAP orders** for algorithmic trading
 
@@ -78,6 +78,7 @@ Built with modern PHP practices and provides:
 | 🔄 **Trade Service**         | Orders, trade history, position management          | 54      |
 | 💰 **Wallet Service**        | Deposits, withdrawals, wallet addresses             | 6       |
 | 💵 **Spot Account Service**  | Spot balance, transfers, internal transfers         | 8       |
+| 👥 **Sub-Account Service**   | Sub-account management, API keys, transfers         | 20      |
 | 📋 **Contract Service**      | Standard contract API                               | 3       |
 | 🔐 **Listen Key Service**    | WebSocket authentication                            | 3       |
 | **Coin-M Perpetual Futures** |                                                     |         |
@@ -772,6 +773,161 @@ $internalTransfer = Bingx::spotAccount()->internalTransfer(
     transferType: 'FROM_MAIN_TO_SUB',
     subUid: '123456'
 );
+
+// Get all account balances
+$allBalances = Bingx::spotAccount()->getAllAccountBalances();
+```
+
+---
+
+### 👥 Sub-Account Service - Sub-Account Management
+
+Complete sub-account management including creation, API key management, transfers, and monitoring.
+
+#### Creating and Managing Sub-Accounts
+
+```php
+// Create a new sub-account
+$result = Bingx::subAccount()->createSubAccount('sub_account_001');
+
+// Get account UID
+$uid = Bingx::subAccount()->getAccountUid();
+
+// Get list of all sub-accounts
+$subAccounts = Bingx::subAccount()->getSubAccountList();
+
+// Get specific sub-account with pagination
+$subAccounts = Bingx::subAccount()->getSubAccountList(
+    subAccountString: 'sub_account_001',
+    current: 1,
+    size: 10
+);
+
+// Get sub-account assets
+$assets = Bingx::subAccount()->getSubAccountAssets('12345678');
+
+// Update sub-account status
+Bingx::subAccount()->updateSubAccountStatus('sub_account_001', 1); // 1: enable, 2: disable
+
+// Get all sub-account balances
+$balances = Bingx::subAccount()->getAllSubAccountBalances();
+```
+
+#### Sub-Account API Key Management
+
+```php
+// Create API key for sub-account
+$apiKey = Bingx::subAccount()->createSubAccountApiKey(
+    subAccountString: 'sub_account_001',
+    label: 'Trading Bot',
+    permissions: ['spot' => true, 'futures' => true],
+    ip: '192.168.1.1' // Optional IP whitelist
+);
+
+// Query API key information
+$apiKeys = Bingx::subAccount()->queryApiKey('sub_account_001');
+
+// Edit sub-account API key
+Bingx::subAccount()->editSubAccountApiKey(
+    subAccountString: 'sub_account_001',
+    apiKey: 'your_api_key',
+    permissions: ['spot' => true, 'futures' => false],
+    ip: '192.168.1.100'
+);
+
+// Delete sub-account API key
+Bingx::subAccount()->deleteSubAccountApiKey('sub_account_001', 'your_api_key');
+```
+
+#### Sub-Account Transfers
+
+```php
+// Authorize sub-account for internal transfers
+Bingx::subAccount()->authorizeSubAccountInternalTransfer('sub_account_001', 1); // 1: authorize, 0: revoke
+
+// Transfer from main to sub-account
+$transfer = Bingx::subAccount()->subAccountInternalTransfer(
+    coin: 'USDT',
+    walletType: 'SPOT',
+    amount: 100.0,
+    transferType: 'FROM_MAIN_TO_SUB',
+    toSubUid: '12345678'
+);
+
+// Transfer from sub to main
+$transfer = Bingx::subAccount()->subAccountInternalTransfer(
+    coin: 'USDT',
+    walletType: 'SPOT',
+    amount: 50.0,
+    transferType: 'FROM_SUB_TO_MAIN',
+    fromSubUid: '12345678'
+);
+
+// Transfer between sub-accounts
+$transfer = Bingx::subAccount()->subAccountInternalTransfer(
+    coin: 'USDT',
+    walletType: 'PERPETUAL',
+    amount: 25.0,
+    transferType: 'FROM_SUB_TO_SUB',
+    fromSubUid: '12345678',
+    toSubUid: '87654321',
+    clientId: 'transfer-001'
+);
+
+// Get internal transfer records
+$records = Bingx::subAccount()->getSubAccountInternalTransferRecords(
+    startTime: strtotime('-7 days') * 1000,
+    endTime: time() * 1000,
+    current: 1,
+    size: 50
+);
+
+// Sub-account asset transfer
+$assetTransfer = Bingx::subAccount()->subAccountAssetTransfer(
+    subUid: '12345678',
+    type: 'FUND_PFUTURES',
+    asset: 'USDT',
+    amount: 100.0
+);
+
+// Get supported coins for sub-account transfers
+$supportedCoins = Bingx::subAccount()->getSubAccountTransferSupportedCoins('12345678');
+
+// Get asset transfer history
+$history = Bingx::subAccount()->getSubAccountAssetTransferHistory(
+    subUid: '12345678',
+    type: 'FUND_PFUTURES',
+    startTime: strtotime('-30 days') * 1000,
+    endTime: time() * 1000
+);
+```
+
+#### Sub-Account Deposit Management
+
+```php
+// Create deposit address for sub-account
+$address = Bingx::subAccount()->createSubAccountDepositAddress(
+    coin: 'USDT',
+    network: 'TRC20',
+    subUid: '12345678'
+);
+
+// Get sub-account deposit address
+$depositAddress = Bingx::subAccount()->getSubAccountDepositAddress(
+    coin: 'USDT',
+    subUid: '12345678',
+    network: 'TRC20'
+);
+
+// Get sub-account deposit history
+$deposits = Bingx::subAccount()->getSubAccountDepositHistory(
+    subUid: '12345678',
+    coin: 'USDT',
+    status: 1, // 0: pending, 1: success, 6: credited but cannot withdraw
+    startTime: strtotime('-30 days') * 1000,
+    endTime: time() * 1000,
+    limit: 100
+);
 ```
 
 ---
@@ -1252,17 +1408,18 @@ vendor/bin/phpunit tests/Unit/
 | **USDT-M Perpetual Futures** |         |                   |
 | Market Service               | 40      | ✅                 |
 | TWAP Service                 | 7       | ✅                 |
-| Account Service              | 39      | ✅                 |
+| Account Service              | 40      | ✅                 |
 | Trade Service                | 54      | ✅                 |
 | Wallet Service               | 6       | ✅                 |
-| Spot Account Service         | 8       | ✅                 |
+| Spot Account Service         | 9       | ✅                 |
+| Sub-Account Service          | 20      | ✅                 |
 | Contract Service             | 3       | ✅                 |
 | Listen Key Service           | 3       | ✅                 |
 | **Coin-M Perpetual Futures** |         |                   |
 | Coin-M Market Service        | 6       | ✅                 |
 | Coin-M Trade Service         | 17      | ✅                 |
 | Coin-M Listen Key Service    | 3       | ✅                 |
-| **Total**                    | **186** | **100% Coverage** |
+| **Total**                    | **207** | **100% Coverage** |
 
 ### Key Features
 

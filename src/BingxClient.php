@@ -10,6 +10,7 @@ use Tigusigalpa\BingX\Services\ContractService;
 use Tigusigalpa\BingX\Services\ListenKeyService;
 use Tigusigalpa\BingX\Services\WalletService;
 use Tigusigalpa\BingX\Services\SpotAccountService;
+use Tigusigalpa\BingX\Services\SubAccountService;
 
 class BingxClient
 {
@@ -21,6 +22,7 @@ class BingxClient
     protected ListenKeyService $listenKey;
     protected WalletService $wallet;
     protected SpotAccountService $spotAccount;
+    protected SubAccountService $subAccount;
     protected ?CoinMClient $coinMClient = null;
 
     public function __construct(
@@ -46,6 +48,7 @@ class BingxClient
         $this->listenKey = new ListenKeyService($this->httpClient);
         $this->wallet = new WalletService($this->httpClient);
         $this->spotAccount = new SpotAccountService($this->httpClient);
+        $this->subAccount = new SubAccountService($this->httpClient);
     }
 
     /**
@@ -116,6 +119,16 @@ class BingxClient
     public function spotAccount(): SpotAccountService
     {
         return $this->spotAccount;
+    }
+
+    /**
+     * Get Sub-Account Service for sub-account management operations
+     * 
+     * @return SubAccountService
+     */
+    public function subAccount(): SubAccountService
+    {
+        return $this->subAccount;
     }
 
     /**

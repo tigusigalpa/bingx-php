@@ -59,7 +59,7 @@ Built with modern PHP practices and provides:
 - ✅ **Advanced error handling** with custom exceptions
 - ✅ **WebSocket support** for streaming data
 - ✅ **Complete security** with HMAC-SHA256 signatures
-- ✅ **207 methods** for full trading control
+- ✅ **220 methods** for full trading control
 - ✅ **Quote API** for optimized market data
 - ✅ **TWAP orders** for algorithmic trading
 
@@ -79,7 +79,8 @@ Built with modern PHP practices and provides:
 | 💰 **Wallet Service**        | Deposits, withdrawals, wallet addresses             | 6       |
 | 💵 **Spot Account Service**  | Spot balance, transfers, internal transfers         | 8       |
 | 👥 **Sub-Account Service**   | Sub-account management, API keys, transfers         | 20      |
-| 📋 **Contract Service**      | Standard contract API                               | 3       |
+| � **Copy Trading Service**  | Copy trading for futures and spot                   | 13      |
+| �� **Contract Service**      | Standard contract API                               | 3       |
 | 🔐 **Listen Key Service**    | WebSocket authentication                            | 3       |
 | **Coin-M Perpetual Futures** |                                                     |         |
 | 🪙 **Coin-M Market**         | Contract info, ticker, depth, klines, open interest | 6       |
@@ -932,6 +933,72 @@ $deposits = Bingx::subAccount()->getSubAccountDepositHistory(
 
 ---
 
+### 📊 Copy Trading Service - Copy Trading Operations
+
+Complete copy trading functionality for both perpetual futures and spot trading.
+
+#### Perpetual Futures Copy Trading
+
+```php
+// Get current track orders
+$orders = Bingx::copyTrading()->getCurrentTrackOrders('BTC-USDT');
+
+// Close position by order number
+$result = Bingx::copyTrading()->closeTrackOrder('1252864099381234567');
+
+// Set take profit and stop loss
+Bingx::copyTrading()->setTPSL(
+    positionId: '1252864099381234567',
+    stopLoss: 48000.0,
+    takeProfit: 52000.0
+);
+
+// Get trader details
+$details = Bingx::copyTrading()->getTraderDetail();
+
+// Get profit summary
+$summary = Bingx::copyTrading()->getProfitSummary();
+
+// Get profit details with pagination
+$profits = Bingx::copyTrading()->getProfitDetail(
+    pageIndex: 1,
+    pageSize: 20
+);
+
+// Set commission rate
+Bingx::copyTrading()->setCommission(5.0); // 5% commission
+
+// Get available trading pairs
+$pairs = Bingx::copyTrading()->getTradingPairs();
+```
+
+#### Spot Copy Trading
+
+```php
+// Sell spot order based on buy order ID
+$result = Bingx::copyTrading()->sellSpotOrder('1253517936071234567');
+
+// Get spot trader details
+$details = Bingx::copyTrading()->getSpotTraderDetail();
+
+// Get spot profit summary
+$summary = Bingx::copyTrading()->getSpotProfitSummary();
+
+// Get spot profit details
+$profits = Bingx::copyTrading()->getSpotProfitDetail(
+    pageIndex: 1,
+    pageSize: 20
+);
+
+// Query historical spot orders
+$history = Bingx::copyTrading()->getSpotHistoryOrders(
+    pageIndex: 1,
+    pageSize: 50
+);
+```
+
+---
+
 ### 📋 Contract Service - Standard Futures
 
 Standard Futures API provides access to standard contract positions, orders, and balance.
@@ -1413,13 +1480,14 @@ vendor/bin/phpunit tests/Unit/
 | Wallet Service               | 6       | ✅                 |
 | Spot Account Service         | 9       | ✅                 |
 | Sub-Account Service          | 20      | ✅                 |
+| Copy Trading Service         | 13      | ✅                 |
 | Contract Service             | 3       | ✅                 |
 | Listen Key Service           | 3       | ✅                 |
 | **Coin-M Perpetual Futures** |         |                   |
 | Coin-M Market Service        | 6       | ✅                 |
 | Coin-M Trade Service         | 17      | ✅                 |
 | Coin-M Listen Key Service    | 3       | ✅                 |
-| **Total**                    | **207** | **100% Coverage** |
+| **Total**                    | **220** | **100% Coverage** |
 
 ### Key Features
 

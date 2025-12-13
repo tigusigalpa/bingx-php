@@ -11,6 +11,7 @@ use Tigusigalpa\BingX\Services\ListenKeyService;
 use Tigusigalpa\BingX\Services\WalletService;
 use Tigusigalpa\BingX\Services\SpotAccountService;
 use Tigusigalpa\BingX\Services\SubAccountService;
+use Tigusigalpa\BingX\Services\CopyTradingService;
 
 class BingxClient
 {
@@ -23,6 +24,7 @@ class BingxClient
     protected WalletService $wallet;
     protected SpotAccountService $spotAccount;
     protected SubAccountService $subAccount;
+    protected CopyTradingService $copyTrading;
     protected ?CoinMClient $coinMClient = null;
 
     public function __construct(
@@ -49,6 +51,7 @@ class BingxClient
         $this->wallet = new WalletService($this->httpClient);
         $this->spotAccount = new SpotAccountService($this->httpClient);
         $this->subAccount = new SubAccountService($this->httpClient);
+        $this->copyTrading = new CopyTradingService($this->httpClient);
     }
 
     /**
@@ -129,6 +132,16 @@ class BingxClient
     public function subAccount(): SubAccountService
     {
         return $this->subAccount;
+    }
+
+    /**
+     * Get Copy Trading Service for copy trading operations
+     * 
+     * @return CopyTradingService
+     */
+    public function copyTrading(): CopyTradingService
+    {
+        return $this->copyTrading;
     }
 
     /**

@@ -1,8 +1,6 @@
 # BingX PHP SDK
 
 ![BingX PHP SDK](https://github.com/user-attachments/assets/bc9acf4c-79c7-4e02-bb8d-75f2d8784b29)
-
-![BingX PHP SDK](https://github.com/user-attachments/assets/bc9acf4c-79c7-4e02-bb8d-75f2d8784b29)
 <div align="center">
 
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-blue?style=flat-square&logo=php)](https://www.php.net/)

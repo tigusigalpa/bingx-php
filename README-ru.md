@@ -15,6 +15,8 @@
 
 PHP-клиент для API криптобиржи [BingX](https://bingx.com). USDT-M и Coin-M бессрочные фьючерсы, спотовая торговля, копи-трейдинг, субаккаунты, WebSocket, интеграция с Laravel 8–12. 220 методов.
 
+> 📖 **[Полная документация доступна на Wiki](https://github.com/tigusigalpa/bingx-php/wiki)**
+
 ## Содержание
 
 - [Возможности](#возможности)
@@ -887,6 +889,7 @@ vendor/bin/phpunit tests/Integration/TradeServiceTest.php
 
 ## Документация
 
+- **Wiki** — [Документация и руководства](https://github.com/tigusigalpa/bingx-php/wiki)
 - **BingX API** — [https://bingx-api.github.io/docs/](https://bingx-api.github.io/docs/)
 - **GitHub репозиторий** — [https://github.com/tigusigalpa/bingx-php](https://github.com/tigusigalpa/bingx-php)
 - **Проблемы и поддержка** — [GitHub Issues](https://github.com/tigusigalpa/bingx-php/issues)

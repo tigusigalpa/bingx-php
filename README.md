@@ -15,6 +15,8 @@ English | [Русский](README-ru.md)
 
 PHP client for the [BingX](https://bingx.com) cryptocurrency exchange API. USDT-M and Coin-M perpetual futures, spot trading, copy trading, sub-accounts, WebSocket streaming, Laravel 8–12 integration. 220 methods.
 
+> 📖 **[Full documentation available on Wiki](https://github.com/tigusigalpa/bingx-php/wiki)**
+
 ## Table of Contents
 
 - [Features](#features)
@@ -1435,6 +1437,7 @@ vendor/bin/phpunit tests/Unit/
 
 ## Documentation
 
+- **Wiki** — [Documentation & Guides](https://github.com/tigusigalpa/bingx-php/wiki)
 - **BingX API** — [https://bingx-api.github.io/docs/](https://bingx-api.github.io/docs/)
 - **GitHub Repository** — [https://github.com/tigusigalpa/bingx-php](https://github.com/tigusigalpa/bingx-php)
 - **Issues & Support** — [GitHub Issues](https://github.com/tigusigalpa/bingx-php/issues)

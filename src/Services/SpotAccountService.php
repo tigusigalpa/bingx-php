@@ -78,30 +78,36 @@ class SpotAccountService
      * Internal transfer (between main and sub-accounts)
      * 
      * @param string $coin Coin name
-     * @param string $walletType Wallet type (SPOT, PERPETUAL)
+     * @param int $walletType Wallet type: 1=Fund Account, 2=Standard Futures, 3=Perpetual Futures, 4=Spot Account
      * @param float $amount Transfer amount
-     * @param string $transferType Transfer type (FROM_MAIN_TO_SUB, FROM_SUB_TO_MAIN)
-     * @param string|null $subUid Sub-account UID
-     * @param string|null $clientId Client order ID
+     * @param int $userAccountType User account type: 1=UID, 2=Phone number, 3=Email
+     * @param string $userAccount User account (UID, phone number, or email)
+     * @param string|null $callingCode Area code for telephone (required when userAccountType=2)
+     * @param string|null $transferClientId Custom ID for internal transfer (alphanumeric, max 100 chars)
+     * @param int|null $recvWindow Request validity time window in milliseconds
      * @return array
      */
     public function internalTransfer(
         string $coin,
-        string $walletType,
+        int $walletType,
         float $amount,
-        string $transferType,
-        ?string $subUid = null,
-        ?string $clientId = null
+        int $userAccountType,
+        string $userAccount,
+        ?string $callingCode = null,
+        ?string $transferClientId = null,
+        ?int $recvWindow = null
     ): array {
         $params = [
             'coin' => $coin,
             'walletType' => $walletType,
             'amount' => $amount,
-            'transferType' => $transferType
+            'userAccountType' => $userAccountType,
+            'userAccount' => $userAccount
         ];
         
-        if ($subUid !== null) $params['subUid'] = $subUid;
-        if ($clientId !== null) $params['clientId'] = $clientId;
+        if ($callingCode !== null) $params['callingCode'] = $callingCode;
+        if ($transferClientId !== null) $params['transferClientId'] = $transferClientId;
+        if ($recvWindow !== null) $params['recvWindow'] = $recvWindow;
 
         return $this->client->request('POST', '/openApi/wallets/v1/capital/innerTransfer/apply', $params);
     }

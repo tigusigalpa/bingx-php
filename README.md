@@ -229,6 +229,15 @@ $klines = Bingx::market()->getKlines(
     strtotime('2024-01-01') * 1000,
     strtotime('2024-01-02') * 1000
 );
+
+// Spot klines with timezone (v2 endpoint)
+// timeZone: 0=UTC (default), 8=UTC+8
+$spotKlines = Bingx::market()->getSpotKlines(
+    'BTC-USDT', '1h', 100,
+    strtotime('2024-01-01') * 1000,
+    strtotime('2024-01-02') * 1000,
+    8 // UTC+8 timezone
+);
 ```
 
 #### Funding and Mark Price
@@ -740,13 +749,18 @@ $history = Bingx::spotAccount()->getAssetTransferRecords(
     endTime: strtotime('2024-01-31') * 1000
 );
 
-// Internal transfer (main -> sub account)
+// Internal transfer (main account internal transfer)
+// Wallet types: 1=Fund Account, 2=Standard Futures, 3=Perpetual Futures, 4=Spot Account
+// User account types: 1=UID, 2=Phone number, 3=Email
 $internalTransfer = Bingx::spotAccount()->internalTransfer(
     coin: 'USDT',
-    walletType: 'SPOT',
+    walletType: 4, // Spot Account
     amount: 50.0,
-    transferType: 'FROM_MAIN_TO_SUB',
-    subUid: '123456'
+    userAccountType: 1, // UID
+    userAccount: '123456',
+    callingCode: null, // Required when userAccountType=2
+    transferClientId: 'transfer-001', // Optional custom ID
+    recvWindow: null
 );
 
 // Get all account balances
@@ -818,33 +832,54 @@ Bingx::subAccount()->deleteSubAccountApiKey('sub_account_001', 'your_api_key');
 // Authorize sub-account for internal transfers
 Bingx::subAccount()->authorizeSubAccountInternalTransfer('sub_account_001', 1); // 1: authorize, 0: revoke
 
-// Transfer from main to sub-account
+// Sub-account internal transfer
+// Wallet types: 1=Fund Account, 2=Standard Futures, 3=Perpetual Futures, 15=Spot Account
+// User account types: 1=UID, 2=Phone number, 3=Email
 $transfer = Bingx::subAccount()->subAccountInternalTransfer(
     coin: 'USDT',
-    walletType: 'SPOT',
+    walletType: 15, // Spot Account
     amount: 100.0,
-    transferType: 'FROM_MAIN_TO_SUB',
-    toSubUid: '12345678'
+    userAccountType: 1, // UID
+    userAccount: '12345678',
+    callingCode: null, // Required when userAccountType=2
+    transferClientId: 'transfer-001', // Optional custom ID
+    recvWindow: null
 );
 
-// Transfer from sub to main
-$transfer = Bingx::subAccount()->subAccountInternalTransfer(
-    coin: 'USDT',
-    walletType: 'SPOT',
-    amount: 50.0,
-    transferType: 'FROM_SUB_TO_MAIN',
-    fromSubUid: '12345678'
+// Sub-Mother Account Asset Transfer (master account only)
+// Flexible transfer between parent and sub-accounts
+$transfer = Bingx::subAccount()->subMotherAccountAssetTransfer(
+    assetName: 'USDT',
+    transferAmount: 100.0,
+    fromUid: 123456,
+    fromType: 1, // 1=Parent account, 2=Sub-account
+    fromAccountType: 1, // 1=Funding, 2=Standard futures, 3=Perpetual U-based, 15=Spot
+    toUid: 789012,
+    toType: 2, // 1=Parent account, 2=Sub-account
+    toAccountType: 15, // Spot account
+    remark: 'Transfer to sub-account',
+    recvWindow: null
 );
 
-// Transfer between sub-accounts
-$transfer = Bingx::subAccount()->subAccountInternalTransfer(
-    coin: 'USDT',
-    walletType: 'PERPETUAL',
-    amount: 25.0,
-    transferType: 'FROM_SUB_TO_SUB',
-    fromSubUid: '12345678',
-    toSubUid: '87654321',
-    clientId: 'transfer-001'
+// Query transferable amount (master account only)
+$transferable = Bingx::subAccount()->getSubMotherAccountTransferableAmount(
+    fromUid: 123456,
+    fromAccountType: 1, // Funding
+    toUid: 789012,
+    toAccountType: 15, // Spot
+    recvWindow: null
+);
+
+// Query transfer history (master account only)
+$history = Bingx::subAccount()->getSubMotherAccountTransferHistory(
+    uid: 123456,
+    type: null, // Optional filter
+    tranId: null, // Optional filter
+    startTime: strtotime('-7 days') * 1000,
+    endTime: time() * 1000,
+    pageId: 1,
+    pagingSize: 50,
+    recvWindow: null
 );
 
 // Get internal transfer records

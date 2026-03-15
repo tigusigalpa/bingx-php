@@ -187,33 +187,36 @@ class SubAccountService
      * Sub-account internal transfer
      * 
      * @param string $coin Coin name
-     * @param string $walletType Wallet type (SPOT, PERPETUAL)
+     * @param int $walletType Wallet type: 1=Fund Account, 2=Standard Futures, 3=Perpetual Futures, 15=Spot Account
      * @param float $amount Transfer amount
-     * @param string $transferType Transfer type (FROM_MAIN_TO_SUB, FROM_SUB_TO_MAIN, FROM_SUB_TO_SUB)
-     * @param string|null $fromSubUid Source sub-account UID (for FROM_SUB_TO_SUB)
-     * @param string|null $toSubUid Target sub-account UID
-     * @param string|null $clientId Client order ID
+     * @param int $userAccountType User account type: 1=UID, 2=Phone number, 3=Email
+     * @param string $userAccount User account (UID, phone number, or email)
+     * @param string|null $callingCode Phone area code (required when userAccountType=2)
+     * @param string|null $transferClientId Client-defined internal transfer ID (alphanumeric, max 100 chars)
+     * @param int|null $recvWindow Request validity time window in milliseconds
      * @return array
      */
     public function subAccountInternalTransfer(
         string $coin,
-        string $walletType,
+        int $walletType,
         float $amount,
-        string $transferType,
-        ?string $fromSubUid = null,
-        ?string $toSubUid = null,
-        ?string $clientId = null
+        int $userAccountType,
+        string $userAccount,
+        ?string $callingCode = null,
+        ?string $transferClientId = null,
+        ?int $recvWindow = null
     ): array {
         $params = [
             'coin' => $coin,
             'walletType' => $walletType,
             'amount' => $amount,
-            'transferType' => $transferType
+            'userAccountType' => $userAccountType,
+            'userAccount' => $userAccount
         ];
         
-        if ($fromSubUid !== null) $params['fromSubUid'] = $fromSubUid;
-        if ($toSubUid !== null) $params['toSubUid'] = $toSubUid;
-        if ($clientId !== null) $params['clientId'] = $clientId;
+        if ($callingCode !== null) $params['callingCode'] = $callingCode;
+        if ($transferClientId !== null) $params['transferClientId'] = $transferClientId;
+        if ($recvWindow !== null) $params['recvWindow'] = $recvWindow;
 
         return $this->client->request('POST', '/openApi/wallets/v1/capital/subAccountInnerTransfer/apply', $params);
     }
@@ -391,5 +394,120 @@ class SubAccountService
         if ($subAccountString !== null) $params['subAccountString'] = $subAccountString;
 
         return $this->client->request('GET', '/openApi/subAccount/v1/allAccountBalance', $params);
+    }
+
+    /**
+     * Sub-Mother Account Asset Transfer Interface
+     * 
+     * Note: This endpoint is only available to the master account.
+     * 
+     * @param string $assetName Asset name (e.g., USDT)
+     * @param float $transferAmount Transfer amount
+     * @param int $fromUid Payer UID
+     * @param int $fromType Payer sub-account type: 1=Parent account, 2=Sub-account
+     * @param int $fromAccountType Payer account type: 1=Funding, 2=Standard futures, 3=Perpetual U-based, 15=Spot
+     * @param int $toUid Receiver UID
+     * @param int $toType Receiver sub-account type: 1=Parent account, 2=Sub-account
+     * @param int $toAccountType Receiver account type: 1=Funding, 2=Standard futures, 3=Perpetual U-based, 15=Spot
+     * @param string $remark Transfer remarks
+     * @param int|null $recvWindow Execution window time (cannot exceed 60000)
+     * @return array Response with tranId (transfer record ID)
+     */
+    public function subMotherAccountAssetTransfer(
+        string $assetName,
+        float $transferAmount,
+        int $fromUid,
+        int $fromType,
+        int $fromAccountType,
+        int $toUid,
+        int $toType,
+        int $toAccountType,
+        string $remark,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'assetName' => $assetName,
+            'transferAmount' => $transferAmount,
+            'fromUid' => $fromUid,
+            'fromType' => $fromType,
+            'fromAccountType' => $fromAccountType,
+            'toUid' => $toUid,
+            'toType' => $toType,
+            'toAccountType' => $toAccountType,
+            'remark' => $remark
+        ];
+        
+        if ($recvWindow !== null) $params['recvWindow'] = $recvWindow;
+
+        return $this->client->request('POST', '/openApi/account/transfer/v1/subAccount/transferAsset', $params);
+    }
+
+    /**
+     * Query Sub-Mother Account Transferable Amount
+     * 
+     * Note: This endpoint is only available to the master account.
+     * 
+     * @param int $fromUid Payer UID
+     * @param int $fromAccountType Payer account type: 1=Funding, 2=Standard futures, 3=Perpetual U-Based
+     * @param int $toUid Receiver UID
+     * @param int $toAccountType Receiver account type: 1=Funding, 2=Standard futures, 3=Perpetual U-Based
+     * @param int|null $recvWindow Execution window time (cannot exceed 60000)
+     * @return array Response with coins array containing id, name, and availableAmount
+     */
+    public function getSubMotherAccountTransferableAmount(
+        int $fromUid,
+        int $fromAccountType,
+        int $toUid,
+        int $toAccountType,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'fromUid' => $fromUid,
+            'fromAccountType' => $fromAccountType,
+            'toUid' => $toUid,
+            'toAccountType' => $toAccountType
+        ];
+        
+        if ($recvWindow !== null) $params['recvWindow'] = $recvWindow;
+
+        return $this->client->request('POST', '/openApi/account/transfer/v1/subAccount/transferAsset/supportCoins', $params);
+    }
+
+    /**
+     * Query Sub-Mother Account Transfer History
+     * 
+     * Note: This endpoint is only available to the master account.
+     * 
+     * @param int $uid UID to query
+     * @param string|null $type Transfer type filter (optional)
+     * @param string|null $tranId Transfer ID (optional)
+     * @param int|null $startTime Start time in milliseconds (optional)
+     * @param int|null $endTime End time in milliseconds (optional)
+     * @param int|null $pageId Current page (default 1)
+     * @param int|null $pagingSize Page size (default 10, max 100)
+     * @param int|null $recvWindow Execution window time (cannot exceed 60000)
+     * @return array Response with total count and rows array
+     */
+    public function getSubMotherAccountTransferHistory(
+        int $uid,
+        ?string $type = null,
+        ?string $tranId = null,
+        ?int $startTime = null,
+        ?int $endTime = null,
+        ?int $pageId = null,
+        ?int $pagingSize = null,
+        ?int $recvWindow = null
+    ): array {
+        $params = ['uid' => $uid];
+        
+        if ($type !== null) $params['type'] = $type;
+        if ($tranId !== null) $params['tranId'] = $tranId;
+        if ($startTime !== null) $params['startTime'] = $startTime;
+        if ($endTime !== null) $params['endTime'] = $endTime;
+        if ($pageId !== null) $params['pageId'] = $pageId;
+        if ($pagingSize !== null) $params['pagingSize'] = $pagingSize;
+        if ($recvWindow !== null) $params['recvWindow'] = $recvWindow;
+
+        return $this->client->request('GET', '/openApi/account/transfer/v1/subAccount/asset/transferHistory', $params);
     }
 }

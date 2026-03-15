@@ -26,11 +26,15 @@ class MarketService
     /**
      * Get spot trading symbols
      * 
+     * Response includes:
+     * - maxMarketNotional: Maximum notional amount for a single market order
+     * - status: Symbol status (0=Offline, 1=Online, 5=Pre-open, 10=Accessed, 25=Suspended, 29=Pre-Delisted, 30=Delisted)
+     * 
      * @return array
      */
     public function getSpotSymbols(): array
     {
-        return $this->client->request('GET', '/openApi/spot/v1/market/symbols');
+        return $this->client->request('GET', '/openApi/spot/v1/common/symbols');
     }
 
     /**
@@ -141,12 +145,13 @@ class MarketService
      * 
      * @param string $symbol Trading symbol
      * @param string $interval Time interval (1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M)
-     * @param int $limit Number of records (1-1000)
+     * @param int $limit Number of records (1-1440)
      * @param int|null $startTime Start timestamp in milliseconds
      * @param int|null $endTime End timestamp in milliseconds
+     * @param int|null $timeZone Timezone offset (0=UTC (default), 8=UTC+8)
      * @return array
      */
-    public function getSpotKlines(string $symbol, string $interval = '1h', int $limit = 100, ?int $startTime = null, ?int $endTime = null): array
+    public function getSpotKlines(string $symbol, string $interval = '1h', int $limit = 100, ?int $startTime = null, ?int $endTime = null, ?int $timeZone = null): array
     {
         $params = [
             'symbol' => $symbol,
@@ -156,8 +161,9 @@ class MarketService
 
         if ($startTime) $params['startTime'] = $startTime;
         if ($endTime) $params['endTime'] = $endTime;
+        if ($timeZone !== null) $params['timeZone'] = $timeZone;
 
-        return $this->client->request('GET', '/openApi/spot/v1/market/klines', $params);
+        return $this->client->request('GET', '/openApi/spot/v2/market/kline', $params);
     }
 
     /**

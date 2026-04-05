@@ -1311,4 +1311,167 @@ class TradeService
 
         return $this->client->request('POST', '/openApi/swap/v2/trade/cancelReplace', $params);
     }
+
+    /**
+     * Switch multi-assets margin mode (API v3)
+     * 
+     * Multi-assets mode allows using entire portfolio as collateral,
+     * reducing margin requirements for hedged positions.
+     * 
+     * @param bool $enabled True to enable, false to disable
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function switchMultiAssetsMode(bool $enabled, ?int $recvWindow = null): array
+    {
+        $params = [
+            'multiAssetsMargin' => $enabled,
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('POST', '/openApi/swap/v3/trade/multiAssetsMode', $params);
+    }
+
+    /**
+     * Get multi-assets margin mode status (API v3)
+     * 
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function getMultiAssetsMode(?int $recvWindow = null): array
+    {
+        $params = [
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v3/trade/multiAssetsMode', $params);
+    }
+
+    /**
+     * Get multi-assets margin rules (API v3)
+     * 
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function getMultiAssetsRules(?int $recvWindow = null): array
+    {
+        $params = [
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v3/trade/multiAssetsRules', $params);
+    }
+
+    /**
+     * Get multi-assets margin details (API v3)
+     * 
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function getMultiAssetsMargin(?int $recvWindow = null): array
+    {
+        $params = [
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v3/trade/multiAssetsMargin', $params);
+    }
+
+    /**
+     * One-click position reversal (API v3)
+     * 
+     * Atomically closes current position and opens opposite position.
+     * Example: LONG 1.0 BTC → SHORT 1.0 BTC in one operation.
+     * 
+     * @param string $symbol Trading symbol
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function oneClickReversePosition(string $symbol, ?int $recvWindow = null): array
+    {
+        $params = [
+            'symbol' => $symbol,
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('POST', '/openApi/swap/v3/trade/positionReverse', $params);
+    }
+
+    /**
+     * Set auto-add margin for position (API v3)
+     * 
+     * Automatically adds margin to position when close to liquidation.
+     * Only works in hedge mode.
+     * 
+     * @param string $symbol Trading symbol
+     * @param string $positionSide Position side (LONG, SHORT)
+     * @param bool $enabled True to enable, false to disable
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function setAutoAddMargin(
+        string $symbol,
+        string $positionSide,
+        bool $enabled,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'symbol' => $symbol,
+            'positionSide' => $positionSide,
+            'autoAddMargin' => $enabled,
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('POST', '/openApi/swap/v3/trade/autoAddMargin', $params);
+    }
+
+    /**
+     * Get auto-add margin status (API v3)
+     * 
+     * @param string $symbol Trading symbol
+     * @param string $positionSide Position side (LONG, SHORT)
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function getAutoAddMargin(
+        string $symbol,
+        string $positionSide,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'symbol' => $symbol,
+            'positionSide' => $positionSide,
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v3/trade/autoAddMargin', $params);
+    }
 }

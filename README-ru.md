@@ -6,6 +6,7 @@
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-blue?style=flat-square&logo=php)](https://www.php.net/)
 [![Composer](https://img.shields.io/badge/composer-v2-orange?style=flat-square&logo=composer)](https://getcomposer.org/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![API v3](https://img.shields.io/badge/BingX%20API-v3-success?style=flat-square)](https://bingx-api.github.io/docs-v3/)
 [![GitHub Stars](https://img.shields.io/github/stars/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php)
 [![Latest Release](https://img.shields.io/github/v/release/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php/releases)
 [![Test Coverage](https://img.shields.io/badge/coverage-119%2B%20tests-brightgreen?style=flat-square)](#-тестирование)
@@ -13,13 +14,16 @@
 Русский | [English](README.md)
 </div>
 
-PHP-клиент для API криптобиржи [BingX](https://bingx.com). USDT-M и Coin-M бессрочные фьючерсы, спотовая торговля, копи-трейдинг, субаккаунты, WebSocket, интеграция с Laravel 8–12. 220 методов.
+Самый полный PHP-клиент для биржи [BingX](https://bingx.com). Строите торгового бота, нужны рыночные данные в реальном времени или хотите автоматизировать портфель? Мы вас прикроем.
 
-> 📖 **[Полная документация доступна на Wiki](https://github.com/tigusigalpa/bingx-php/wiki)**
+**Что внутри:** USDT-M и Coin-M фьючерсы, спот, TWAP алгоритмические ордера, трейлинг-стопы, портфельная маржа, копи-трейдинг, субаккаунты, WebSocket и бесшовная интеграция с Laravel. Более 250 методов готовы к использованию.
+
+> 📖 **[Полная документация на Wiki](https://github.com/tigusigalpa/bingx-php/wiki)** — примеры, гайды и справочник API
 
 ## Содержание
 
 - [Возможности](#возможности)
+- [🚀 Возможности API v3](#-возможности-api-v3)
 - [Быстрый старт](#быстрый-старт)
 - [Установка](#установка)
 - [Использование](#использование)
@@ -44,15 +48,15 @@ PHP-клиент для API криптобиржи [BingX](https://bingx.com). U
 
 ## Возможности
 
-### Поддерживаемые сервисы
+### Что можно делать с этим SDK?
 
 | Сервис                       | Описание                                                         | Методов |
 |------------------------------|------------------------------------------------------------------|---------|
 | **USDT-M Perpetual Futures** |                                                                  |         |
-| **Market Data**        | Рыночные данные, Quote API, символы, цены, свечи                 | 40      |
-| **TWAP Service**          | Алгоритмические ордера с временным взвешиванием                  | 7       |
-| **Account Management**       | Баланс, позиции, кредитное плечо, маржа, активы                  | 39      |
-| **Trade Management**         | Ордера, история сделок, управление позициями                     | 54      |
+| **Market Data**        | Рыночные данные, Quote API, символы, цены, свечи, OI             | 46      |
+| **TWAP Service** *(v3)*   | Алгоритмические ордера с временным взвешиванием                  | 7       |
+| **Account Management**       | Баланс, позиции, кредитное плечо, мониторинг рисков              | 45      |
+| **Trade Management**         | Ордера, история сделок, управление позициями, типы v3            | 60      |
 | **Wallet Management**        | Депозиты, выводы, адреса кошельков                               | 6       |
 | **Spot Account Service**  | Спотовый баланс, переводы, внутренние переводы                   | 8       |
 | **Sub-Account Service**   | Управление субаккаунтами, API ключи, переводы                    | 20      |
@@ -64,26 +68,138 @@ PHP-клиент для API криптобиржи [BingX](https://bingx.com). U
 | **Coin-M Trade**          | Ордера, позиции, кредитное плечо, маржа, баланс                  | 17      |
 | **Coin-M Listen Key**     | Аутентификация WebSocket для Coin-M                              | 3       |
 
-### Безопасность
+### Безопасность — мы относимся к ней серьёзно
 
-- Подпись HMAC-SHA256 для всех запросов
-- Автоматическая валидация временных меток
-- Поддержка кодирования подписи base64 и hex
-- recvWindow для защиты от повторных атак
-- Пользовательские исключения для разных типов ошибок
+- **HMAC-SHA256 подписи** на каждый запрос
+- **Автоматическая обработка timestamp** — забудьте про ошибки "timestamp out of recvWindow"
+- **Гибкое кодирование** — base64 или hex, на ваш выбор
+- **Защита от replay-атак** через recvWindow
+- **Умные исключения** — точно знаете, что пошло не так
 
-### Удобство разработки
+### Создано для разработчиков
 
-- Fluent интерфейс для создания ордеров
-- Автодополнение IDE с подсказками типов
-- Полное покрытие тестами с примерами
-- Поддержка чистого PHP и Laravel
+- **Fluent интерфейс** — цепочки методов как у профи
+- **Дружит с IDE** — полное автодополнение с типами
+- **Проверено в бою** — 119+ тестов и это не предел
+- **Как вам удобно** — работает с чистым PHP или Laravel
+
+---
+
+## 🚀 Возможности API v3
+
+Новые фишки. Эти функции приносят инструменты институционального уровня каждому.
+
+### TWAP Ордера — Торгуйте как крупные игроки
+
+Пробовали купить 10 BTC за раз и смотрели, как цена взлетает против вас? Это проскальзывание, и TWAP решает эту проблему, распределяя ордер во времени:
+
+```php
+// Выполнить покупку 10 BTC за 1 час
+$twap = Bingx::twap()->buy(
+    symbol: 'BTC-USDT',
+    quantity: 10.0,
+    duration: 3600,  // секунды
+    positionSide: 'LONG'
+);
+
+// Отслеживать прогресс
+$details = Bingx::twap()->getOrderDetail($twap['orderId']);
+```
+
+### Новые типы ордеров — Больше способов торговать
+
+**Трейлинг-стоп маркет** — Стоп-лосс, который следует за вашей прибылью:
+```php
+$order = Bingx::trade()->order()
+    ->futures()
+    ->symbol('ETH-USDT')
+    ->sell()
+    ->long()
+    ->type('TRAILING_STOP_MARKET')
+    ->activationPrice(3000.0)
+    ->callbackRate(1.0)  // Отставание 1% от пика
+    ->quantity(1.0)
+    ->execute();
+```
+
+**Триггер-лимит** — Дождитесь своей цены, затем используйте лимит (не маркет):
+```php
+$order = Bingx::trade()->order()
+    ->futures()
+    ->type('TRIGGER_LIMIT')
+    ->stopPrice(49500.0)  // Триггер
+    ->price(50000.0)      // Лимит
+    ->execute();
+```
+
+### Мультиактивная маржа — Используйте весь портфель
+
+Зачем блокировать маржу для каждой позиции, когда весь портфель может обеспечивать всё?
+
+```php
+// Включить портфельную маржу
+Bingx::trade()->switchMultiAssetsMode(true);
+
+// Проверить детали маржи
+$margin = Bingx::trade()->getMultiAssetsMargin();
+```
+
+### Мониторинг рисков — Знайте до того, как ликвиднёт
+
+Знать цену ликвидации *до* того, как вас ликвиднут — это как бы важно:
+
+```php
+$risk = Bingx::account()->getPositionRisk('BTC-USDT');
+echo "Цена ликвидации: {$risk['liquidationPrice']}\n";
+echo "Коэффициент маржи: {$risk['marginRatio']}\n";
+```
+
+### Разворот позиции одним кликом — Передумали? Без проблем
+
+Рынок развернулся? Переверните позицию одной атомарной операцией — без разрыва, без экспозиции:
+
+```php
+// Развернуть: LONG → SHORT или SHORT → LONG
+Bingx::trade()->oneClickReversePosition('BTC-USDT');
+```
+
+### Отслеживание доходов и P&L — Куда ушли деньги?
+
+Разберите по полочкам прибыль, убытки, комиссии и фандинг:
+
+```php
+// Получить доходы по типу
+$income = Bingx::account()->getIncomeHistory(
+    symbol: 'BTC-USDT',
+    incomeType: 'REALIZED_PNL'
+);
+
+// История комиссий
+$commissions = Bingx::account()->getCommissionHistory('BTC-USDT');
+```
+
+### Расширенные рыночные данные — Видьте то, что другие не видят
+
+```php
+// Открытый интерес
+$oi = Bingx::market()->getOpenInterest('BTC-USDT');
+
+// Информация о ставке финансирования
+$funding = Bingx::market()->getFundingRateInfo('BTC-USDT');
+
+// Лучшие bid/ask
+$ticker = Bingx::market()->getBookTicker('BTC-USDT');
+```
+
+> 📘 **[Полное руководство по миграции на API v3](API_V3_MIGRATION.md)** — Ваш существующий код продолжает работать. Новые функции опциональны.
 
 ---
 
 ## Быстрый старт
 
-### С Laravel
+Давайте запустим вас за 5 минут.
+
+### С Laravel — Простой путь
 
 ```php
 // Получить текущую цену
@@ -108,7 +224,7 @@ $order = Bingx::trade()->order()
     ->execute();
 ```
 
-### Чистый PHP
+### Чистый PHP — Без фреймворка
 
 ```php
 use Tigusigalpa\BingX\BingxClient;
@@ -124,11 +240,11 @@ $price = $bingx->market()->getLatestPrice('BTC-USDT');
 
 ## Установка
 
-### Требования
+### Что понадобится
 
-- PHP >= 8.1
-- Composer
-- (Опционально) Laravel 8-12 для интеграции
+- **PHP 8.1+** — используем современные фичи
+- **Composer** — для управления зависимостями
+- **Laravel 8-12** — опционально, но упрощает жизнь
 
 ### Шаг 1: Добавить репозиторий
 
@@ -169,13 +285,13 @@ BINGX_BASE_URI=https://open-api.bingx.com
 BINGX_SIGNATURE_ENCODING=base64
 ```
 
-### Создание API ключей
+### Получение API ключей
 
-1. Перейдите в [BingX API Settings](https://bingx.com/en-US/accounts/api)
+1. Зайдите в [BingX API Settings](https://bingx.com/en-US/accounts/api)
 2. Нажмите "Create API"
-3. Сохраните **API Key** и **Secret Key** в безопасном месте
-4. Настройте права доступа
-5. Secret Key отображается только один раз — сохраните его
+3. **Важно:** Сохраните Secret Key сразу — вы увидите его только один раз!
+4. Настройте права (чтение, торговля, вывод — что вам нужно)
+5. Храните оба ключа в безопасном месте (не в коде!)
 
 ---
 

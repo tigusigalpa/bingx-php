@@ -12,6 +12,7 @@ use Tigusigalpa\BingX\Services\WalletService;
 use Tigusigalpa\BingX\Services\SpotAccountService;
 use Tigusigalpa\BingX\Services\SubAccountService;
 use Tigusigalpa\BingX\Services\CopyTradingService;
+use Tigusigalpa\BingX\Services\TwapService;
 
 class BingxClient
 {
@@ -25,6 +26,7 @@ class BingxClient
     protected SpotAccountService $spotAccount;
     protected SubAccountService $subAccount;
     protected CopyTradingService $copyTrading;
+    protected TwapService $twap;
     protected ?CoinMClient $coinMClient = null;
 
     public function __construct(
@@ -52,6 +54,7 @@ class BingxClient
         $this->spotAccount = new SpotAccountService($this->httpClient);
         $this->subAccount = new SubAccountService($this->httpClient);
         $this->copyTrading = new CopyTradingService($this->httpClient);
+        $this->twap = new TwapService($this->httpClient);
     }
 
     /**
@@ -142,6 +145,19 @@ class BingxClient
     public function copyTrading(): CopyTradingService
     {
         return $this->copyTrading;
+    }
+
+    /**
+     * Get TWAP Service for algorithmic trading (API v3)
+     * 
+     * TWAP (Time-Weighted Average Price) orders execute large trades over time
+     * to minimize market impact.
+     * 
+     * @return TwapService
+     */
+    public function twap(): TwapService
+    {
+        return $this->twap;
     }
 
     /**

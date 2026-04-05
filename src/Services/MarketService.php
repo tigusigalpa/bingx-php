@@ -485,4 +485,116 @@ class MarketService
 
         return $this->client->request('GET', '/openApi/swap/v2/market/basis', $params);
     }
+
+    /**
+     * Get open interest (API v3)
+     * 
+     * Returns current open interest for a symbol.
+     * 
+     * @param string $symbol Trading symbol
+     * @return array
+     */
+    public function getOpenInterest(string $symbol): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v3/market/openInterest', [
+            'symbol' => $symbol
+        ]);
+    }
+
+    /**
+     * Get open interest history (API v3)
+     * 
+     * Historical open interest data with customizable period.
+     * 
+     * @param string $symbol Trading symbol
+     * @param string $period Period (5m, 15m, 30m, 1h, 4h, 1d)
+     * @param int $limit Number of records (1-500)
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @return array
+     */
+    public function getOpenInterestHistory(
+        string $symbol,
+        string $period = '5m',
+        int $limit = 100,
+        ?int $startTime = null,
+        ?int $endTime = null
+    ): array {
+        $params = [
+            'symbol' => $symbol,
+            'period' => $period,
+            'limit' => $limit
+        ];
+
+        if ($startTime) $params['startTime'] = $startTime;
+        if ($endTime) $params['endTime'] = $endTime;
+
+        return $this->client->request('GET', '/openApi/swap/v3/market/openInterest/history', $params);
+    }
+
+    /**
+     * Get funding rate info (API v3)
+     * 
+     * Returns current funding rate and next funding time.
+     * 
+     * @param string $symbol Trading symbol
+     * @return array
+     */
+    public function getFundingRateInfo(string $symbol): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v3/market/fundingRate', [
+            'symbol' => $symbol
+        ]);
+    }
+
+    /**
+     * Get book ticker (best bid/ask) (API v3)
+     * 
+     * Returns best bid and ask prices without full order book depth.
+     * 
+     * @param string|null $symbol Trading symbol (null for all symbols)
+     * @return array
+     */
+    public function getBookTicker(?string $symbol = null): array
+    {
+        $params = [];
+        if ($symbol) {
+            $params['symbol'] = $symbol;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v3/market/bookTicker', $params);
+    }
+
+    /**
+     * Get index price (API v3)
+     * 
+     * Returns index price for a symbol.
+     * 
+     * @param string $symbol Trading symbol
+     * @return array
+     */
+    public function getIndexPrice(string $symbol): array
+    {
+        return $this->client->request('GET', '/openApi/swap/v3/market/index', [
+            'symbol' => $symbol
+        ]);
+    }
+
+    /**
+     * Get ticker price (API v3)
+     * 
+     * Returns latest price for symbol(s).
+     * 
+     * @param string|null $symbol Trading symbol (null for all symbols)
+     * @return array
+     */
+    public function getTickerPrice(?string $symbol = null): array
+    {
+        $params = [];
+        if ($symbol) {
+            $params['symbol'] = $symbol;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v3/market/ticker/price', $params);
+    }
 }

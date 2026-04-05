@@ -1,6 +1,6 @@
 {
   "name": "tigusigalpa/bingx-php",
-  "description": "BingX Swap V2 API client for PHP with Laravel 8-12 integration",
+  "description": "BingX API v3 client for PHP with Laravel 8-12 integration - TWAP orders, trailing stops, multi-assets margin, advanced risk management",
   "type": "library",
   "license": "MIT",
   "authors": [

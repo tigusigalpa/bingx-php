@@ -6,6 +6,7 @@
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-blue?style=flat-square&logo=php)](https://www.php.net/)
 [![Composer](https://img.shields.io/badge/composer-v2-orange?style=flat-square&logo=composer)](https://getcomposer.org/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![API v3](https://img.shields.io/badge/BingX%20API-v3-success?style=flat-square)](https://bingx-api.github.io/docs-v3/)
 [![GitHub Stars](https://img.shields.io/github/stars/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php)
 [![Latest Release](https://img.shields.io/github/v/release/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php/releases)
 [![Test Coverage](https://img.shields.io/badge/coverage-119%2B%20tests-brightgreen?style=flat-square)](#-testing)
@@ -13,13 +14,16 @@
 English | [Русский](README-ru.md)
 </div>
 
-PHP client for the [BingX](https://bingx.com) cryptocurrency exchange API. USDT-M and Coin-M perpetual futures, spot trading, copy trading, sub-accounts, WebSocket streaming, Laravel 8–12 integration. 220 methods.
+The most complete PHP client for [BingX](https://bingx.com) exchange. Whether you're building a trading bot, need real-time market data, or want to automate your portfolio — we've got you covered.
 
-> 📖 **[Full documentation available on Wiki](https://github.com/tigusigalpa/bingx-php/wiki)**
+**What's inside:** USDT-M & Coin-M futures, spot trading, TWAP algorithmic orders, trailing stops, portfolio margin, copy trading, sub-accounts, WebSocket streaming, and seamless Laravel integration. Over 250 methods ready to use.
+
+> 📖 **[Full documentation on Wiki](https://github.com/tigusigalpa/bingx-php/wiki)** — examples, guides, and API reference
 
 ## Table of Contents
 
 - [Features](#features)
+- [🚀 API v3 Features](#-api-v3-features)
 - [Quick Start](#quick-start)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -44,15 +48,15 @@ PHP client for the [BingX](https://bingx.com) cryptocurrency exchange API. USDT-
 
 ## Features
 
-### Supported services
+### What can you do with this SDK?
 
 | Service                      | Description                                         | Methods |
 |------------------------------|-----------------------------------------------------|---------|
 | **USDT-M Perpetual Futures** |                                                     |         |
-| **Market Service**        | Market data, Quote API, symbols, prices, candles    | 40      |
-| **TWAP Service**          | Time-Weighted Average Price algorithmic orders      | 7       |
-| **Account Service**       | Balance, positions, leverage, margin, assets        | 39      |
-| **Trade Service**         | Orders, trade history, position management          | 54      |
+| **Market Service**        | Market data, Quote API, symbols, prices, candles, OI | 46      |
+| **TWAP Service** *(v3)*   | Time-Weighted Average Price algorithmic orders      | 7       |
+| **Account Service**       | Balance, positions, leverage, risk monitoring       | 45      |
+| **Trade Service**         | Orders, trade history, position management, v3 types | 60      |
 | **Wallet Service**        | Deposits, withdrawals, wallet addresses             | 6       |
 | **Spot Account Service**  | Spot balance, transfers, internal transfers         | 8       |
 | **Sub-Account Service**   | Sub-account management, API keys, transfers         | 20      |
@@ -64,26 +68,138 @@ PHP client for the [BingX](https://bingx.com) cryptocurrency exchange API. USDT-
 | **Coin-M Trade**          | Orders, positions, leverage, margin, balance        | 17      |
 | **Coin-M Listen Key**     | WebSocket authentication for Coin-M                 | 3       |
 
-### Security
+### Security — we take it seriously
 
-- HMAC-SHA256 signature for all requests
-- Automatic timestamp validation
-- Support for base64 and hex signature encoding
-- recvWindow for replay attack protection
-- Custom exceptions for different error types
+- **HMAC-SHA256 signatures** on every request
+- **Automatic timestamp handling** — no more "timestamp out of recvWindow" errors
+- **Flexible encoding** — base64 or hex, your choice
+- **Replay protection** via recvWindow
+- **Smart exceptions** — know exactly what went wrong
 
-### Developer experience
+### Built for developers
 
-- Fluent interface for order building
-- IDE autocomplete with type hints
-- Full test coverage with examples
-- Support for pure PHP and Laravel
+- **Fluent interface** — chain methods like a pro
+- **IDE-friendly** — full autocomplete with type hints
+- **Battle-tested** — 119+ tests and counting
+- **Your way** — works with pure PHP or Laravel
+
+---
+
+## 🚀 API v3 Features
+
+The new hotness. These features bring institutional-grade tools to everyone.
+
+### TWAP Orders — Execute like the big players
+
+Ever tried to buy 10 BTC at once and watched the price spike against you? That's slippage, and TWAP solves it by spreading your order over time:
+
+```php
+// Execute 10 BTC over 1 hour
+$twap = Bingx::twap()->buy(
+    symbol: 'BTC-USDT',
+    quantity: 10.0,
+    duration: 3600,  // seconds
+    positionSide: 'LONG'
+);
+
+// Monitor progress
+$details = Bingx::twap()->getOrderDetail($twap['orderId']);
+```
+
+### New Order Types — More ways to trade
+
+**Trailing Stop Market** — The stop-loss that follows your profits:
+```php
+$order = Bingx::trade()->order()
+    ->futures()
+    ->symbol('ETH-USDT')
+    ->sell()
+    ->long()
+    ->type('TRAILING_STOP_MARKET')
+    ->activationPrice(3000.0)
+    ->callbackRate(1.0)  // Trail 1% behind peak
+    ->quantity(1.0)
+    ->execute();
+```
+
+**Trigger Limit** — Wait for your price, then use a limit (not market):
+```php
+$order = Bingx::trade()->order()
+    ->futures()
+    ->type('TRIGGER_LIMIT')
+    ->stopPrice(49500.0)  // Trigger
+    ->price(50000.0)      // Limit
+    ->execute();
+```
+
+### Multi-Assets Margin — Use your whole portfolio
+
+Why lock up margin for each position when your portfolio can back everything?
+
+```php
+// Enable portfolio margin
+Bingx::trade()->switchMultiAssetsMode(true);
+
+// Check margin details
+$margin = Bingx::trade()->getMultiAssetsMargin();
+```
+
+### Position Risk Monitoring — Know before you blow
+
+Knowing your liquidation price *before* you get liquidated is kind of important:
+
+```php
+$risk = Bingx::account()->getPositionRisk('BTC-USDT');
+echo "Liquidation Price: {$risk['liquidationPrice']}\n";
+echo "Margin Ratio: {$risk['marginRatio']}\n";
+```
+
+### One-Click Position Reversal — Change your mind instantly
+
+Market turned? Flip your position in one atomic operation — no gap, no exposure:
+
+```php
+// Reverse: LONG → SHORT or SHORT → LONG
+Bingx::trade()->oneClickReversePosition('BTC-USDT');
+```
+
+### Income & P&L Tracking — Where did my money go?
+
+Break down your profits, losses, fees, and funding payments:
+
+```php
+// Get income by type
+$income = Bingx::account()->getIncomeHistory(
+    symbol: 'BTC-USDT',
+    incomeType: 'REALIZED_PNL'
+);
+
+// Commission history
+$commissions = Bingx::account()->getCommissionHistory('BTC-USDT');
+```
+
+### Enhanced Market Data — See what others can't
+
+```php
+// Open interest
+$oi = Bingx::market()->getOpenInterest('BTC-USDT');
+
+// Funding rate info
+$funding = Bingx::market()->getFundingRateInfo('BTC-USDT');
+
+// Book ticker (best bid/ask)
+$ticker = Bingx::market()->getBookTicker('BTC-USDT');
+```
+
+> 📘 **[Complete API v3 Migration Guide](API_V3_MIGRATION.md)** — Your existing code keeps working. New features are opt-in.
 
 ---
 
 ## Quick Start
 
-### With Laravel
+Let's get you trading in under 5 minutes.
+
+### With Laravel — The easy way
 
 ```php
 // Get current price
@@ -108,7 +224,7 @@ $order = Bingx::trade()->order()
     ->execute();
 ```
 
-### Pure PHP
+### Pure PHP — No framework needed
 
 ```php
 use Tigusigalpa\BingX\BingxClient;
@@ -124,11 +240,11 @@ $price = $bingx->market()->getLatestPrice('BTC-USDT');
 
 ## Installation
 
-### Requirements
+### What you'll need
 
-- PHP >= 8.1
-- Composer
-- (Optional) Laravel 8-12 for integration
+- **PHP 8.1+** — we use modern features
+- **Composer** — for dependency management
+- **Laravel 8-12** — optional, but makes life easier
 
 ### Step 1: Add Repository
 
@@ -169,13 +285,13 @@ BINGX_BASE_URI=https://open-api.bingx.com
 BINGX_SIGNATURE_ENCODING=base64
 ```
 
-### Creating API Keys
+### Getting your API keys
 
-1. Go to [BingX API Settings](https://bingx.com/en-US/accounts/api)
-2. Click "Create API"
-3. Save your **API Key** and **Secret Key** in a secure location
-4. Configure access rights
-5. Secret Key is displayed only once — store it securely
+1. Head to [BingX API Settings](https://bingx.com/en-US/accounts/api)
+2. Hit "Create API"
+3. **Important:** Save your Secret Key immediately — you'll only see it once!
+4. Set up permissions (read, trade, withdraw — whatever you need)
+5. Store both keys somewhere safe (not in your code!)
 
 ---
 

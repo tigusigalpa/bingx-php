@@ -443,4 +443,164 @@ class AccountService
     {
         return $this->client->request('GET', '/openApi/v1/account/apiPermissions');
     }
+
+    /**
+     * Get position risk (API v3)
+     * 
+     * Returns detailed risk information including liquidation price,
+     * leverage, margin ratio, and unrealized P&L.
+     * 
+     * @param string|null $symbol Trading symbol (optional)
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function getPositionRisk(?string $symbol = null, ?int $recvWindow = null): array
+    {
+        $params = [
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($symbol !== null) {
+            $params['symbol'] = $symbol;
+        }
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v3/user/positionRisk', $params);
+    }
+
+    /**
+     * Get income history (API v3)
+     * 
+     * Returns income records by type: REALIZED_PNL, FUNDING_FEE, 
+     * COMMISSION, TRANSFER, INSURANCE_CLEAR.
+     * 
+     * @param string|null $symbol Trading symbol (optional)
+     * @param string|null $incomeType Income type (optional)
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @param int $limit Number of records (1-1000)
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function getIncomeHistory(
+        ?string $symbol = null,
+        ?string $incomeType = null,
+        ?int $startTime = null,
+        ?int $endTime = null,
+        int $limit = 100,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'limit' => $limit,
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($symbol !== null) {
+            $params['symbol'] = $symbol;
+        }
+
+        if ($incomeType !== null) {
+            $params['incomeType'] = $incomeType;
+        }
+
+        if ($startTime !== null) {
+            $params['startTime'] = $startTime;
+        }
+
+        if ($endTime !== null) {
+            $params['endTime'] = $endTime;
+        }
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v3/user/income', $params);
+    }
+
+    /**
+     * Get commission history (API v3)
+     * 
+     * Returns detailed commission/fee records for trades.
+     * 
+     * @param string $symbol Trading symbol
+     * @param int|null $startTime Start timestamp in milliseconds
+     * @param int|null $endTime End timestamp in milliseconds
+     * @param int $limit Number of records (1-1000)
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function getCommissionHistory(
+        string $symbol,
+        ?int $startTime = null,
+        ?int $endTime = null,
+        int $limit = 100,
+        ?int $recvWindow = null
+    ): array {
+        $params = [
+            'symbol' => $symbol,
+            'limit' => $limit,
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($startTime !== null) {
+            $params['startTime'] = $startTime;
+        }
+
+        if ($endTime !== null) {
+            $params['endTime'] = $endTime;
+        }
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v3/user/commissionHistory', $params);
+    }
+
+    /**
+     * Set position mode (API v3)
+     * 
+     * Switch between hedge mode (dual position) and one-way mode.
+     * Cannot switch while having open positions.
+     * 
+     * @param bool $dualSidePosition True for hedge mode, false for one-way mode
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function setPositionMode(bool $dualSidePosition, ?int $recvWindow = null): array
+    {
+        $params = [
+            'dualSidePosition' => $dualSidePosition,
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('POST', '/openApi/swap/v3/user/positionSide/dual', $params);
+    }
+
+    /**
+     * Get position mode (API v3)
+     * 
+     * @param int|null $recvWindow Request validity window
+     * @return array
+     */
+    public function getPositionModeV3(?int $recvWindow = null): array
+    {
+        $params = [
+            'timestamp' => (int) (microtime(true) * 1000),
+        ];
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v3/user/positionSide/dual', $params);
+    }
 }

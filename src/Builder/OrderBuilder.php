@@ -58,11 +58,19 @@ class OrderBuilder
     }
 
     /**
-     * Set order type: MARKET, LIMIT, STOP, STOP_MARKET
+     * Set order type: MARKET, LIMIT, STOP, STOP_MARKET, TRAILING_STOP_MARKET, TRIGGER_LIMIT, TRAILING_TP_SL
      */
     public function type(string $type): self
     {
-        $validTypes = ['MARKET', 'LIMIT', 'STOP', 'STOP_MARKET'];
+        $validTypes = [
+            'MARKET', 
+            'LIMIT', 
+            'STOP', 
+            'STOP_MARKET',
+            'TRAILING_STOP_MARKET',  // API v3
+            'TRIGGER_LIMIT',         // API v3
+            'TRAILING_TP_SL'         // API v3
+        ];
         if (!in_array($type, $validTypes)) {
             $this->addError("Invalid order type: {$type}");
             return $this;
@@ -359,6 +367,80 @@ class OrderBuilder
         }
 
         $this->orderData['recvWindow'] = $recvWindow;
+        return $this;
+    }
+
+    /**
+     * Set activation price for trailing stop orders (API v3)
+     * 
+     * Price at which trailing stop starts following the market.
+     */
+    public function activationPrice(float $price): self
+    {
+        if ($price <= 0) {
+            $this->addError("Activation price must be greater than 0");
+            return $this;
+        }
+
+        $this->orderData['activationPrice'] = $price;
+        return $this;
+    }
+
+    /**
+     * Set callback rate for trailing stop orders (API v3)
+     * 
+     * Percentage distance to trail behind the high/low (e.g., 1.0 for 1%).
+     */
+    public function callbackRate(float $rate): self
+    {
+        if ($rate <= 0 || $rate > 100) {
+            $this->addError("Callback rate must be between 0 and 100");
+            return $this;
+        }
+
+        $this->orderData['callbackRate'] = $rate;
+        return $this;
+    }
+
+    /**
+     * Set trailing stop percentage for TRAILING_TP_SL orders (API v3)
+     */
+    public function trailingStopPercent(float $percent): self
+    {
+        if ($percent <= 0 || $percent > 100) {
+            $this->addError("Trailing stop percentage must be between 0 and 100");
+            return $this;
+        }
+
+        $this->orderData['trailingStopPercent'] = $percent;
+        return $this;
+    }
+
+    /**
+     * Set take profit price for TRAILING_TP_SL orders (API v3)
+     */
+    public function takeProfitPrice(float $price): self
+    {
+        if ($price <= 0) {
+            $this->addError("Take profit price must be greater than 0");
+            return $this;
+        }
+
+        $this->orderData['takeProfitPrice'] = $price;
+        return $this;
+    }
+
+    /**
+     * Set stop loss price for TRAILING_TP_SL orders (API v3)
+     */
+    public function stopLossPrice(float $price): self
+    {
+        if ($price <= 0) {
+            $this->addError("Stop loss price must be greater than 0");
+            return $this;
+        }
+
+        $this->orderData['stopLossPrice'] = $price;
         return $this;
     }
 

@@ -1,15 +1,15 @@
 {
   "name": "tigusigalpa/bingx-php",
-  "description": "BingX API v3 client for PHP with Laravel 8-12 integration - TWAP orders, trailing stops, multi-assets margin, advanced risk management",
+  "description": "BingX API v3 client for PHP with Laravel 8-13 integration - TWAP orders, trailing stops, multi-assets margin, advanced risk management",
   "type": "library",
   "license": "MIT",
   "authors": [
     {"name":"Igor Sazonov","email":"sovletig@gmail.com"}
   ],
   "require": {
-    "php": "^7.4|^8.0|^8.1|^8.2",
+    "php": "^7.4|^8.0|^8.1|^8.2|^8.3|^8.4",
     "guzzlehttp/guzzle": "^7.8",
-    "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+    "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
     "textalk/websocket": "^1.6"
   },
   "require-dev": {

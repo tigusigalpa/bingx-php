@@ -244,7 +244,7 @@ $price = $bingx->market()->getLatestPrice('BTC-USDT');
 
 - **PHP 8.1+** — we use modern features
 - **Composer** — for dependency management
-- **Laravel 8-12** — optional, but makes life easier
+- **Laravel 8-13** — optional, but makes life easier
 
 ### Step 1: Add Repository
 

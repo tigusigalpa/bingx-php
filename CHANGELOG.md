@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-04-13
+
+### Added
+- **Laravel 13 Support**: Full compatibility with Laravel 13
+- **PHP 8.3/8.4 Support**: Added support for PHP 8.3 and 8.4
+
 ## [2.0.0] - 2026-04-05
 
 ### 🚀 Major Update: BingX API v3 Support

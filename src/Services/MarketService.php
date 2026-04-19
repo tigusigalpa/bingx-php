@@ -95,7 +95,7 @@ class MarketService
      */
     public function getDepth(string $symbol, int $limit = 20): array
     {
-        return $this->client->request('GET', '/openApi/swap/v2/market/depth', [
+        return $this->client->request('GET', '/openApi/swap/v2/quote/depth', [
             'symbol' => $symbol,
             'limit' => $limit
         ]);
@@ -137,7 +137,7 @@ class MarketService
         if ($startTime) $params['startTime'] = $startTime;
         if ($endTime) $params['endTime'] = $endTime;
 
-        return $this->client->request('GET', '/openApi/swap/v2/market/kline', $params);
+        return $this->client->request('GET', '/openApi/swap/v3/quote/klines', $params);
     }
 
     /**
@@ -177,7 +177,7 @@ class MarketService
         $params = [];
         if ($symbol) $params['symbol'] = $symbol;
 
-        return $this->client->request('GET', '/openApi/swap/v2/market/ticker24hr', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/quote/ticker', $params);
     }
 
     /**
@@ -217,7 +217,7 @@ class MarketService
      */
     public function getMarkPrice(string $symbol): array
     {
-        return $this->client->request('GET', '/openApi/swap/v2/market/markPrice', [
+        return $this->client->request('GET', '/openApi/swap/v2/quote/premiumIndex', [
             'symbol' => $symbol
         ]);
     }
@@ -279,7 +279,7 @@ class MarketService
      */
     public function getRecentTrades(string $symbol, int $limit = 500): array
     {
-        return $this->client->request('GET', '/openApi/swap/v2/market/trades', [
+        return $this->client->request('GET', '/openApi/swap/v2/quote/trades', [
             'symbol' => $symbol,
             'limit' => $limit
         ]);
@@ -487,7 +487,7 @@ class MarketService
     }
 
     /**
-     * Get open interest (API v3)
+     * Get open interest
      * 
      * Returns current open interest for a symbol.
      * 
@@ -496,7 +496,7 @@ class MarketService
      */
     public function getOpenInterest(string $symbol): array
     {
-        return $this->client->request('GET', '/openApi/swap/v3/market/openInterest', [
+        return $this->client->request('GET', '/openApi/swap/v2/quote/openInterest', [
             'symbol' => $symbol
         ]);
     }
@@ -533,7 +533,7 @@ class MarketService
     }
 
     /**
-     * Get funding rate info (API v3)
+     * Get funding rate info
      * 
      * Returns current funding rate and next funding time.
      * 
@@ -542,13 +542,13 @@ class MarketService
      */
     public function getFundingRateInfo(string $symbol): array
     {
-        return $this->client->request('GET', '/openApi/swap/v3/market/fundingRate', [
+        return $this->client->request('GET', '/openApi/swap/v2/quote/fundingRate', [
             'symbol' => $symbol
         ]);
     }
 
     /**
-     * Get book ticker (best bid/ask) (API v3)
+     * Get book ticker (best bid/ask)
      * 
      * Returns best bid and ask prices without full order book depth.
      * 
@@ -562,7 +562,7 @@ class MarketService
             $params['symbol'] = $symbol;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v3/market/bookTicker', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/quote/bookTicker', $params);
     }
 
     /**

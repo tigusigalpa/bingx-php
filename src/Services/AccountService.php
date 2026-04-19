@@ -20,7 +20,7 @@ class AccountService
      */
     public function getBalance(): array
     {
-        return $this->client->request('GET', '/openApi/swap/v2/user/balance');
+        return $this->client->request('GET', '/openApi/swap/v3/user/balance');
     }
 
     /**

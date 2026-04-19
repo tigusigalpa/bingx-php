@@ -16,14 +16,18 @@ class SubAccountService
     /**
      * Create sub-account
      * 
-     * @param string $subAccountString Sub-account identifier
-     * @return array
+     * @param string $subAccountString Sub-account username (must start with letter, contain number, >6 chars)
+     * @param string|null $note Optional remark/note for the sub-account
+     * @return array Response containing subUid and subAccountString
      */
-    public function createSubAccount(string $subAccountString): array
+    public function createSubAccount(string $subAccountString, ?string $note = null): array
     {
-        return $this->client->request('POST', '/openApi/subAccount/v1/create', [
-            'subAccountString' => $subAccountString
-        ]);
+        $params = ['subAccountString' => $subAccountString];
+        if ($note !== null) {
+            $params['note'] = $note;
+        }
+        
+        return $this->client->request('POST', '/openApi/subAccount/v1/create', $params, true, 'json');
     }
 
     /**
@@ -74,27 +78,29 @@ class SubAccountService
     /**
      * Create sub-account API key
      * 
-     * @param string $subAccountString Sub-account identifier
-     * @param string $label API key label
-     * @param array $permissions API key permissions
-     * @param string|null $ip IP whitelist (optional)
-     * @return array
+     * @param string $subUid Sub-account UID
+     * @param string $note API key label/note
+     * @param array $permissions API key permissions (1=Spot, 2=Read, 3=Perp Futures, 4=Universal Transfer, 5=Withdraw, 7=Internal Transfer)
+     * @param array|null $ipAddresses Optional IP whitelist array
+     * @return array Response containing apiKey and secretKey
      */
     public function createSubAccountApiKey(
-        string $subAccountString,
-        string $label,
+        string $subUid,
+        string $note,
         array $permissions,
-        ?string $ip = null
+        ?array $ipAddresses = null
     ): array {
         $params = [
-            'subAccountString' => $subAccountString,
-            'label' => $label,
-            'permissions' => json_encode($permissions)
+            'subUid' => $subUid,
+            'note' => $note,
+            'permissions' => $permissions
         ];
         
-        if ($ip !== null) $params['ip'] = $ip;
+        if ($ipAddresses !== null) {
+            $params['ipAddresses'] = $ipAddresses;
+        }
 
-        return $this->client->request('POST', '/openApi/subAccount/v1/apiKey/create', $params);
+        return $this->client->request('POST', '/openApi/subAccount/v1/apiKey/create', $params, true, 'json');
     }
 
     /**
@@ -115,57 +121,59 @@ class SubAccountService
     /**
      * Edit sub-account API key
      * 
-     * @param string $subAccountString Sub-account identifier
+     * @param string $subUid Sub-account UID
      * @param string $apiKey API key to edit
-     * @param array $permissions New permissions
-     * @param string|null $ip IP whitelist (optional)
+     * @param array $permissions New permissions (1=Spot, 2=Read, 3=Perp Futures, 4=Universal Transfer, 5=Withdraw, 7=Internal Transfer)
+     * @param array|null $ipAddresses Optional IP whitelist array
      * @return array
      */
     public function editSubAccountApiKey(
-        string $subAccountString,
+        string $subUid,
         string $apiKey,
         array $permissions,
-        ?string $ip = null
+        ?array $ipAddresses = null
     ): array {
         $params = [
-            'subAccountString' => $subAccountString,
+            'subUid' => $subUid,
             'apiKey' => $apiKey,
-            'permissions' => json_encode($permissions)
+            'permissions' => $permissions
         ];
         
-        if ($ip !== null) $params['ip'] = $ip;
+        if ($ipAddresses !== null) {
+            $params['ipAddresses'] = $ipAddresses;
+        }
 
-        return $this->client->request('POST', '/openApi/subAccount/v1/apiKey/edit', $params);
+        return $this->client->request('POST', '/openApi/subAccount/v1/apiKey/edit', $params, true, 'json');
     }
 
     /**
      * Delete sub-account API key
      * 
-     * @param string $subAccountString Sub-account identifier
+     * @param string $subUid Sub-account UID
      * @param string $apiKey API key to delete
      * @return array
      */
-    public function deleteSubAccountApiKey(string $subAccountString, string $apiKey): array
+    public function deleteSubAccountApiKey(string $subUid, string $apiKey): array
     {
         return $this->client->request('POST', '/openApi/subAccount/v1/apiKey/del', [
-            'subAccountString' => $subAccountString,
+            'subUid' => $subUid,
             'apiKey' => $apiKey
-        ]);
+        ], true, 'json');
     }
 
     /**
-     * Update sub-account status
+     * Update sub-account status (freeze/unfreeze)
      * 
-     * @param string $subAccountString Sub-account identifier
-     * @param int $status Status (1: enable, 2: disable)
+     * @param string $subUid Sub-account UID
+     * @param bool $freeze True to freeze, false to unfreeze
      * @return array
      */
-    public function updateSubAccountStatus(string $subAccountString, int $status): array
+    public function updateSubAccountStatus(string $subUid, bool $freeze): array
     {
         return $this->client->request('POST', '/openApi/subAccount/v1/updateStatus', [
-            'subAccountString' => $subAccountString,
-            'status' => $status
-        ]);
+            'subUid' => $subUid,
+            'freeze' => $freeze
+        ], true, 'json');
     }
 
     /**

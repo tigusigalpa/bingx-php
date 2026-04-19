@@ -83,7 +83,7 @@ class TradeService
      */
     public function getCommissionRate(string $symbol): array
     {
-        return $this->client->request('GET', '/openApi/cswap/v1/trade/commissionRate', [
+        return $this->client->request('GET', '/openApi/cswap/v1/user/commissionRate', [
             'symbol' => $symbol
         ]);
     }
@@ -151,9 +151,9 @@ class TradeService
     }
 
     /**
-     * Cancel all orders
+     * Cancel all open orders
      * 
-     * DELETE /openApi/cswap/v1/trade/allOrders
+     * POST /openApi/cswap/v1/trade/allOpenOrders
      * 
      * Cancels all open orders for a symbol.
      * 
@@ -171,13 +171,13 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
         
-        return $this->client->request('DELETE', '/openApi/cswap/v1/trade/allOrders', $params);
+        return $this->client->request('POST', '/openApi/cswap/v1/trade/allOpenOrders', $params);
     }
 
     /**
      * Close all positions
      * 
-     * DELETE /openApi/cswap/v1/trade/closeAllPositions
+     * POST /openApi/cswap/v1/trade/closeAllPositions
      * 
      * Closes all open positions for a symbol using market orders.
      * 
@@ -195,13 +195,13 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
         
-        return $this->client->request('DELETE', '/openApi/cswap/v1/trade/closeAllPositions', $params);
+        return $this->client->request('POST', '/openApi/cswap/v1/trade/closeAllPositions', $params);
     }
 
     /**
      * Query positions
      * 
-     * GET /openApi/cswap/v1/trade/positions
+     * GET /openApi/cswap/v1/user/positions
      * 
      * Returns current open positions.
      * 
@@ -232,13 +232,13 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
         
-        return $this->client->request('GET', '/openApi/cswap/v1/trade/positions', $params);
+        return $this->client->request('GET', '/openApi/cswap/v1/user/positions', $params);
     }
 
     /**
      * Get account balance
      * 
-     * GET /openApi/cswap/v1/trade/balance
+     * GET /openApi/cswap/v1/user/balance
      * 
      * Returns account balance for Coin-M futures.
      * 
@@ -263,7 +263,7 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
         
-        return $this->client->request('GET', '/openApi/cswap/v1/trade/balance', $params);
+        return $this->client->request('GET', '/openApi/cswap/v1/user/balance', $params);
     }
 
     /**

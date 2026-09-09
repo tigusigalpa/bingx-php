@@ -26,7 +26,7 @@ jobs:
           tools: composer:v2
 
       - name: Restore Composer cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/composer
           key: composer-${{ runner.os }}-php-8.3-${{ hashFiles('composer.json') }}
@@ -65,7 +65,7 @@ jobs:
           tools: composer:v2
 
       - name: Restore Composer cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/composer
           key: composer-${{ runner.os }}-php-${{ matrix.php }}-${{ hashFiles('composer.json') }}
@@ -94,7 +94,7 @@ jobs:
           tools: composer:v2
 
       - name: Restore Composer cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/composer
           key: composer-${{ runner.os }}-php-8.3-${{ hashFiles('composer.json') }}

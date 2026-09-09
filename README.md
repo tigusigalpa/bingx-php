@@ -9,7 +9,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php)
 [![Latest Release](https://img.shields.io/github/v/release/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php/releases)
 [![Tests](https://github.com/tigusigalpa/bingx-php/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/bingx-php/actions/workflows/tests.yml)
-[![CodeQL](https://github.com/tigusigalpa/bingx-php/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/bingx-php/actions/workflows/codeql.yml)
+[![CodeQL and PHP Security](https://github.com/tigusigalpa/bingx-php/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/bingx-php/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/tigusigalpa/bingx-php/branch/main/graph/badge.svg)](https://codecov.io/gh/tigusigalpa/bingx-php)
 
 English | [Русский](README-ru.md)

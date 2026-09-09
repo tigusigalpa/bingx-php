@@ -462,69 +462,15 @@ class TradeService
     /**
      * Create a test order (won't execute in real market)
      * 
-     * @param string      $symbol
-     * @param string      $side
-     * @param string      $type
-     * @param float       $quantity
-     * @param string|null $positionSide
-     * @param float|null  $price
-     * @param string|null $timeInForce
-     * @param float|null  $stopPrice
-     * @param string|null $clientOrderId
-     * @param float|null  $priceRate
-     * @param string|null $workingType
-     * @param int|null    $timestamp
-     * @param int|null    $recvWindow
+     * @param array $params Associative array of order parameters. Required: symbol, side, type, quantity. Optional keys are forwarded to BingX as-is (positionSide, price, timeInForce, stopPrice, clientOrderId, priceRate, workingType, recvWindow, timestamp).
      * @return array
      */
-    public function createTestOrder(
-        string $symbol,
-        string $side,
-        string $type,
-        float $quantity,
-        ?string $positionSide = null,
-        ?float $price = null,
-        ?string $timeInForce = null,
-        ?float $stopPrice = null,
-        ?string $clientOrderId = null,
-        ?float $priceRate = null,
-        ?string $workingType = null,
-        ?int $timestamp = null,
-        ?int $recvWindow = null
-    ): array {
-        $params = [
-            'symbol'    => $symbol,
-            'side'      => $side,
-            'type'      => $type,
-            'quantity'  => $quantity,
-            'timestamp' => $timestamp ?? (int) (microtime(true) * 1000),
-        ];
-        
-        if ($positionSide !== null) {
-            $params['positionSide'] = $positionSide;
+    public function createTestOrder(array $params): array
+    {
+        if (!isset($params['timestamp'])) {
+            $params['timestamp'] = (int) (microtime(true) * 1000);
         }
-        if ($price !== null) {
-            $params['price'] = $price;
-        }
-        if ($timeInForce !== null) {
-            $params['timeInForce'] = $timeInForce;
-        }
-        if ($stopPrice !== null) {
-            $params['stopPrice'] = $stopPrice;
-        }
-        if ($clientOrderId !== null) {
-            $params['clientOrderId'] = $clientOrderId;
-        }
-        if ($priceRate !== null) {
-            $params['priceRate'] = $priceRate;
-        }
-        if ($workingType !== null) {
-            $params['workingType'] = $workingType;
-        }
-        if ($recvWindow !== null) {
-            $params['recvWindow'] = $recvWindow;
-        }
-        
+
         return $this->client->request('POST', '/openApi/swap/v2/trade/order/test', $params);
     }
 

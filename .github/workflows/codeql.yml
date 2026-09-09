@@ -1,4 +1,4 @@
-name: CodeQL
+name: CodeQL and PHP Security
 
 on:
   push:
@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   analyze:
-    name: Analyze PHP
+    name: Analyze GitHub Actions
     runs-on: ubuntu-latest
 
     steps:
@@ -25,10 +25,44 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
-          languages: php
+          languages: actions
           queries: security-extended
 
       - name: Analyze code
         uses: github/codeql-action/analyze@v4
         with:
-          category: /language:php
+          category: /language:actions
+
+  php-security:
+    name: PHP taint analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, curl
+          coverage: none
+          tools: composer:v2
+
+      - name: Restore Composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-php-8.3-${{ hashFiles('composer.json') }}
+          restore-keys: composer-${{ runner.os }}-php-8.3-
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHP taint analysis
+        run: vendor/bin/psalm --taint-analysis --report=build/psalm.sarif
+
+      - name: Upload PHP security results
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: build/psalm.sarif

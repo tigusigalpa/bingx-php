@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.3.1] - 2026-09-09
+
+### Added
+- Full **VST/demo environment** ergonomics: `BingxClient::isDemo()`, `getEnvironment()`, and named live/demo base-URI constants.
+- `TradeService::adjustVst()` for applying for or adjusting virtual VST balance, with local validation of adjustment type and amount.
+- Laravel `BINGX_DEMO=true` configuration, opt-in VST smoke tests, configurable WebSocket stream factories, and a guarded `examples/demo_trading.php` workflow.
+- Detailed English and Russian demo-trading documentation, covering safe reads, test orders, virtual-balance requests, real simulated orders, and cleanup.
+
+### Fixed
+- Integration-test bootstrap now constructs `BingxClient` with its supported constructor signature when credentials are supplied.
+
 ## [2.2.0] - 2026-09-09
 
 ### Fixed

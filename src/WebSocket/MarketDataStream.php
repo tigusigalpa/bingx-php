@@ -11,9 +11,12 @@ class MarketDataStream extends WebSocketClient
 {
     const URL = 'wss://open-api-swap.bingx.com/swap-market';
 
-    public function __construct()
+    /**
+     * @param string|null $url Optional exchange-provided market WebSocket URL.
+     */
+    public function __construct(?string $url = null)
     {
-        parent::__construct(self::URL);
+        parent::__construct($url ?? self::URL);
     }
 
     /**

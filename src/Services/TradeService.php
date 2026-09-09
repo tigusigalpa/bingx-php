@@ -1433,4 +1433,42 @@ class TradeService
 
         return $this->client->request('POST', '/openApi/swap/v2/trade/getVst', $params);
     }
+
+    /**
+     * Apply for or adjust the Virtual Simulation Trading (VST) balance.
+     *
+     * This operation is only meaningful for a client configured with
+     * BingxClient::newDemoClient(). It does not move real funds, but it can
+     * change the virtual balance of the VST account.
+     *
+     * @param int $adjustType 0 increases VST balance; 1 decreases it.
+     * @param int|null $amount Amount of VST to adjust. Omit when asking BingX
+     *                          to apply its default VST allocation.
+     * @param int|null $recvWindow Request validity window in milliseconds.
+     */
+    public function adjustVst(
+        int $adjustType = 0,
+        ?int $amount = null,
+        ?int $recvWindow = null
+    ): array {
+        if ($adjustType !== 0 && $adjustType !== 1) {
+            throw new \InvalidArgumentException('VST adjust type must be 0 (increase) or 1 (decrease)');
+        }
+
+        if ($amount !== null && $amount <= 0) {
+            throw new \InvalidArgumentException('VST adjustment amount must be greater than 0');
+        }
+
+        $params = ['adjustType' => $adjustType];
+
+        if ($amount !== null) {
+            $params['amount'] = $amount;
+        }
+
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('POST', '/openApi/swap/v2/trade/getVst', $params);
+    }
 }

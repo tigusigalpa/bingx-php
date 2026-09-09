@@ -30,13 +30,11 @@ abstract class TestCase extends BaseTestCase
             $this->markTestSkipped('BINGX_API_KEY and BINGX_API_SECRET must be set in environment variables');
         }
 
-        $http = new BaseHttpClient(
+        $this->client = new BingxClient(
             $this->config['api_key'],
             $this->config['api_secret'],
             $this->config['base_uri']
         );
-
-        $this->client = new BingxClient($http);
     }
 
     protected function skipIfMissingCredentials(): void

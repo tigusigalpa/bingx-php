@@ -12,6 +12,8 @@ use Tigusigalpa\BingX\Services\MarketService;
 use Tigusigalpa\BingX\Services\SpotTradeService;
 use Tigusigalpa\BingX\Services\TradeService;
 use Tigusigalpa\BingX\TradFiClient;
+use Tigusigalpa\BingX\WebSocket\AccountDataStream;
+use Tigusigalpa\BingX\WebSocket\MarketDataStream;
 
 class BingxClientTest extends TestCase
 {
@@ -50,6 +52,25 @@ class BingxClientTest extends TestCase
         $client = BingxClient::newDemoClient('key', 'secret');
 
         $this->assertSame('https://open-api-vst.bingx.com', $client->getEndpoint());
+        $this->assertTrue($client->isDemo());
+        $this->assertSame(BingxClient::ENVIRONMENT_DEMO, $client->getEnvironment());
+    }
+
+    public function testLiveClientReportsItsEnvironment(): void
+    {
+        $this->assertFalse($this->client->isDemo());
+        $this->assertSame(BingxClient::ENVIRONMENT_LIVE, $this->client->getEnvironment());
+    }
+
+    public function testClientCreatesConfigurableWebSocketStreamsWithoutConnecting(): void
+    {
+        $market = $this->client->marketDataStream('wss://example.test/market');
+        $account = $this->client->accountDataStream('listen key', 'wss://example.test/account');
+
+        $this->assertInstanceOf(MarketDataStream::class, $market);
+        $this->assertSame('wss://example.test/market', $market->getUrl());
+        $this->assertInstanceOf(AccountDataStream::class, $account);
+        $this->assertSame('wss://example.test/account?listenKey=listen%20key', $account->getUrl());
     }
 
     public function testClientExposesItsInjectedHttpClient(): void

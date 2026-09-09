@@ -16,10 +16,11 @@ class AccountDataStream extends WebSocketClient
      * Create account data stream with listen key
      * 
      * @param string $listenKey Valid listen key from ListenKeyService
+     * @param string|null $baseUrl Optional exchange-provided account stream URL.
      */
-    public function __construct(string $listenKey)
+    public function __construct(string $listenKey, ?string $baseUrl = null)
     {
-        $url = self::BASE_URL . '?listenKey=' . $listenKey;
+        $url = ($baseUrl ?? self::BASE_URL) . '?listenKey=' . rawurlencode($listenKey);
         parent::__construct($url);
     }
 

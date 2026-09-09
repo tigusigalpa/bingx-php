@@ -84,4 +84,36 @@ class ServiceEndpointTest extends TestCase
         (new TradeService($http))->oneClickReversePosition('BTC-USDT');
         (new TwapService($http))->createOrder(['symbol' => 'BTC-USDT']);
     }
+
+    public function testVstAdjustmentUsesTheVstEndpointWithValidatedParameters(): void
+    {
+        $http = $this->createMock(BaseHttpClient::class);
+        $http->expects($this->once())
+            ->method('request')
+            ->with(
+                'POST',
+                '/openApi/swap/v2/trade/getVst',
+                ['adjustType' => 0, 'amount' => 100000, 'recvWindow' => 5000]
+            )
+            ->willReturn(['code' => 0, 'data' => ['balance' => '100000']]);
+
+        $response = (new TradeService($http))->adjustVst(0, 100000, 5000);
+
+        $this->assertSame('100000', $response['data']['balance']);
+    }
+
+    public function testVstAdjustmentRejectsInvalidValues(): void
+    {
+        $service = new TradeService($this->createMock(BaseHttpClient::class));
+
+        try {
+            $service->adjustVst(2, 1000);
+            $this->fail('Expected invalid VST adjust type to throw.');
+        } catch (\InvalidArgumentException $exception) {
+            $this->assertStringContainsString('adjust type', $exception->getMessage());
+        }
+
+        $this->expectException(\InvalidArgumentException::class);
+        $service->adjustVst(0, 0);
+    }
 }

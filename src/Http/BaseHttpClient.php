@@ -13,6 +13,9 @@ use Tigusigalpa\BingX\Exceptions\InsufficientBalanceException;
 
 class BaseHttpClient
 {
+    public const LIVE_BASE_URI = 'https://open-api.bingx.com';
+    public const DEMO_BASE_URI = 'https://open-api-vst.bingx.com';
+
     protected string $apiKey;
     protected string $apiSecret;
     protected string $baseUri;
@@ -24,14 +27,14 @@ class BaseHttpClient
      * Fallback URLs for network/timeout errors
      */
     protected array $fallbackUrls = [
-        'https://open-api.bingx.com' => 'https://open-api.bingx.pro',
-        'https://open-api-vst.bingx.com' => 'https://open-api-vst.bingx.pro',
+        self::LIVE_BASE_URI => 'https://open-api.bingx.pro',
+        self::DEMO_BASE_URI => 'https://open-api-vst.bingx.pro',
     ];
     
     public function __construct(
         string $apiKey, 
         string $apiSecret, 
-        string $baseUri = 'https://open-api.bingx.com', 
+        string $baseUri = self::LIVE_BASE_URI,
         ?string $sourceKey = null, 
         string $signatureEncoding = 'hex', 
         ?Client $http = null
@@ -274,6 +277,15 @@ class BaseHttpClient
         }
         
         throw $lastException ?? new BingxException('Request failed with no response');
+    }
+
+    /**
+     * Whether this HTTP client targets BingX Virtual Simulation Trading.
+     */
+    public function isDemo(): bool
+    {
+        return $this->baseUri === self::DEMO_BASE_URI
+            || $this->baseUri === 'https://open-api-vst.bingx.pro';
     }
     
     /**

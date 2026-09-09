@@ -905,15 +905,134 @@ Bingx::spotTrade()->amendOrder(
 );
 ```
 
-### Demo/VST and TradFi
+### Demo / VST Trading
+
+Virtual Simulation Trading (VST) uses a separate API key and the
+`https://open-api-vst.bingx.com` endpoint. Prices are live; funds, orders, and
+positions are virtual. Always create API credentials specifically for VST — do
+not reuse production keys.
+
+#### Create and verify a demo client
 
 ```php
 use Tigusigalpa\BingX\BingxClient;
 
-// Virtual Simulation Trading uses a VST API key and never production funds.
 $demo = BingxClient::newDemoClient('VST_API_KEY', 'VST_API_SECRET');
-$vstInfo = $demo->trade()->getVst();
 
+if (!$demo->isDemo()) {
+    throw new LogicException('Expected the VST environment.');
+}
+
+echo $demo->getEnvironment(); // demo
+echo $demo->getEndpoint();    // https://open-api-vst.bingx.com
+```
+
+The same REST service accessors are available as on a live client. BingX
+ultimately controls which product endpoints are available in VST.
+
+```php
+// Safe, read-only calls
+$price = $demo->market()->getLatestPrice('BTC-USDT');
+$balance = $demo->account()->getBalance();
+$positions = $demo->account()->getPositions('BTC-USDT');
+$openOrders = $demo->trade()->getOpenOrders('BTC-USDT');
+```
+
+#### Validate an order without creating one
+
+`createTestOrder()` validates an order payload without creating an order or a
+position. It is the preferred first step for a new strategy.
+
+```php
+$validation = $demo->trade()->createTestOrder([
+    'symbol' => 'BTC-USDT',
+    'side' => 'BUY',
+    'positionSide' => 'LONG',
+    'type' => 'MARKET',
+    'quantity' => '0.001',
+]);
+```
+
+#### Work with virtual VST balance
+
+`adjustVst()` can request or change the virtual balance. It never affects real
+funds, but it is still a write operation against the demo account.
+
+```php
+// Request the default VST allocation / increase the virtual balance.
+$vst = $demo->trade()->adjustVst(0);
+
+// Decrease the VST balance by a specified amount.
+$vst = $demo->trade()->adjustVst(1, 1000);
+```
+
+#### Place, inspect, and cancel a simulated order
+
+The following creates a real order **in the VST account only**. Check the
+response and your position before moving any strategy to production.
+
+```php
+$order = $demo->trade()->createOrder([
+    'symbol' => 'BTC-USDT',
+    'side' => 'BUY',
+    'positionSide' => 'LONG',
+    'type' => 'MARKET',
+    'quantity' => '0.001',
+]);
+
+$orderId = (string) ($order['data']['orderId'] ?? '');
+$currentOrder = $demo->trade()->getOrder('BTC-USDT', $orderId);
+$positions = $demo->account()->getPositions('BTC-USDT');
+
+// Use the order ID returned by BingX to cancel a pending order.
+// $demo->trade()->cancelOrder('BTC-USDT', $orderId);
+```
+
+#### Laravel configuration
+
+```env
+BINGX_DEMO=true
+BINGX_API_KEY=your_vst_api_key
+BINGX_API_SECRET=your_vst_api_secret
+BINGX_SOURCE_KEY=optional_source_key
+```
+
+`BINGX_DEMO=true` takes precedence over `BINGX_BASE_URI` and prevents the
+container binding from pointing at the live REST endpoint.
+
+#### Runnable example and VST smoke tests
+
+```bash
+export BINGX_VST_API_KEY=your_vst_api_key
+export BINGX_VST_API_SECRET=your_vst_api_secret
+php examples/demo_trading.php
+```
+
+The example performs only reads and a test-order validation by default. Set
+`BINGX_REQUEST_VST=true` to request virtual VST funds or
+`BINGX_PLACE_VST_ORDER=true` to deliberately create a simulated order.
+
+To run the opt-in, read-only VST integration smoke tests:
+
+```bash
+export BINGX_RUN_VST_TESTS=true
+vendor/bin/phpunit --group vst
+```
+
+#### WebSocket streams
+
+The default public swap stream is suitable for live market prices. If BingX
+provides a dedicated stream URL for your VST account, pass it explicitly rather
+than relying on an undocumented host.
+
+```php
+$marketStream = $demo->marketDataStream('wss://exchange-provided-host/market');
+$accountStream = $demo->accountDataStream($listenKey, 'wss://exchange-provided-host/account');
+```
+
+### TradFi
+
+```php
 // Stock, forex, commodity, and index perpetual instruments.
 $stocks = Bingx::tradFi()->market()->getStockSymbols();
 $tesla = Bingx::tradFi()->market()->getLatestPrice('TSLA-USDT');

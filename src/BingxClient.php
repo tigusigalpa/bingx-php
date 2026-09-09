@@ -14,9 +14,16 @@ use Tigusigalpa\BingX\Services\SubAccountService;
 use Tigusigalpa\BingX\Services\CopyTradingService;
 use Tigusigalpa\BingX\Services\TwapService;
 use Tigusigalpa\BingX\Services\SpotTradeService;
+use Tigusigalpa\BingX\WebSocket\AccountDataStream;
+use Tigusigalpa\BingX\WebSocket\MarketDataStream;
 
 class BingxClient
 {
+    public const ENVIRONMENT_LIVE = 'live';
+    public const ENVIRONMENT_DEMO = 'demo';
+    public const LIVE_BASE_URI = BaseHttpClient::LIVE_BASE_URI;
+    public const DEMO_BASE_URI = BaseHttpClient::DEMO_BASE_URI;
+
     protected BaseHttpClient $httpClient;
     protected MarketService $market;
     protected AccountService $account;
@@ -35,7 +42,7 @@ class BingxClient
     public function __construct(
         string $apiKey, 
         string $apiSecret, 
-        string $baseUri = 'https://open-api.bingx.com', 
+        string $baseUri = self::LIVE_BASE_URI,
         ?string $sourceKey = null, 
         string $signatureEncoding = 'hex',
         ?BaseHttpClient $httpClient = null
@@ -76,7 +83,7 @@ class BingxClient
         return new self(
             $apiKey,
             $apiSecret,
-            'https://open-api-vst.bingx.com',
+            self::DEMO_BASE_URI,
             $sourceKey,
             $signatureEncoding
         );
@@ -238,6 +245,28 @@ class BingxClient
     }
 
     /**
+     * Create a public market-data WebSocket stream.
+     *
+     * The default URL is BingX's public swap stream. Supply an explicit URL
+     * when BingX provides an environment-specific stream for your account.
+     */
+    public function marketDataStream(?string $url = null): MarketDataStream
+    {
+        return new MarketDataStream($url);
+    }
+
+    /**
+     * Create a private account-data WebSocket stream for a listen key.
+     *
+     * The caller may provide an environment-specific URL when one is supplied
+     * by BingX. This avoids silently routing a VST account to an invented URL.
+     */
+    public function accountDataStream(string $listenKey, ?string $baseUrl = null): AccountDataStream
+    {
+        return new AccountDataStream($listenKey, $baseUrl);
+    }
+
+    /**
      * Get the underlying HTTP client
      * 
      * @return BaseHttpClient
@@ -255,6 +284,22 @@ class BingxClient
     public function getEndpoint(): string
     {
         return $this->httpClient->getEndpoint();
+    }
+
+    /**
+     * Whether this client uses BingX Virtual Simulation Trading (VST).
+     */
+    public function isDemo(): bool
+    {
+        return $this->httpClient->isDemo();
+    }
+
+    /**
+     * Return the active exchange environment: "live" or "demo".
+     */
+    public function getEnvironment(): string
+    {
+        return $this->isDemo() ? self::ENVIRONMENT_DEMO : self::ENVIRONMENT_LIVE;
     }
 
     /**

@@ -190,6 +190,14 @@ class WebSocketClient
     }
 
     /**
+     * Get the configured WebSocket URL without opening a connection.
+     */
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    /**
      * Stop listening for messages
      * 
      * @return void

@@ -2,13 +2,16 @@
 
 namespace Tigusigalpa\BingX\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Tigusigalpa\BingX\BingxClient;
+use Tigusigalpa\BingX\CoinMClient;
 use Tigusigalpa\BingX\Http\BaseHttpClient;
-use Tigusigalpa\BingX\Services\MarketService;
 use Tigusigalpa\BingX\Services\AccountService;
+use Tigusigalpa\BingX\Services\MarketService;
+use Tigusigalpa\BingX\Services\SpotTradeService;
 use Tigusigalpa\BingX\Services\TradeService;
+use Tigusigalpa\BingX\TradFiClient;
 
 class BingxClientTest extends TestCase
 {
@@ -20,48 +23,37 @@ class BingxClientTest extends TestCase
         parent::setUp();
 
         $this->httpClient = $this->createMock(BaseHttpClient::class);
-        $this->client = new BingxClient($this->httpClient);
+        $this->client = new BingxClient('key', 'secret', 'https://example.test', null, 'hex', $this->httpClient);
     }
 
-    public function testClientReturnsMarketService(): void
+    public function testClientReturnsTheExpectedSingletonServices(): void
     {
-        $market = $this->client->market();
-        
-        $this->assertInstanceOf(MarketService::class, $market);
-        $this->assertSame($market, $this->client->market()); // Test singleton
+        $this->assertInstanceOf(MarketService::class, $this->client->market());
+        $this->assertInstanceOf(AccountService::class, $this->client->account());
+        $this->assertInstanceOf(TradeService::class, $this->client->trade());
+        $this->assertInstanceOf(SpotTradeService::class, $this->client->spotTrade());
+        $this->assertSame($this->client->market(), $this->client->market());
+        $this->assertSame($this->client->spotTrade(), $this->client->spotTrade());
     }
 
-    public function testClientReturnsAccountService(): void
+    public function testLazyClientsAreCached(): void
     {
-        $account = $this->client->account();
-        
-        $this->assertInstanceOf(AccountService::class, $account);
-        $this->assertSame($account, $this->client->account()); // Test singleton
+        $this->assertInstanceOf(CoinMClient::class, $this->client->coinM());
+        $this->assertSame($this->client->coinM(), $this->client->coinM());
+
+        $this->assertInstanceOf(TradFiClient::class, $this->client->tradFi());
+        $this->assertSame($this->client->tradFi(), $this->client->tradFi());
     }
 
-    public function testClientReturnsTradeService(): void
+    public function testDemoClientUsesVstEndpoint(): void
     {
-        $trade = $this->client->trade();
-        
-        $this->assertInstanceOf(TradeService::class, $trade);
-        $this->assertSame($trade, $this->client->trade()); // Test singleton
+        $client = BingxClient::newDemoClient('key', 'secret');
+
+        $this->assertSame('https://open-api-vst.bingx.com', $client->getEndpoint());
     }
 
-    public function testServicesShareHttpClient(): void
+    public function testClientExposesItsInjectedHttpClient(): void
     {
-        $market = $this->client->market();
-        $account = $this->client->account();
-        $trade = $this->client->trade();
-        
-        // All services should share the same HTTP client
-        $this->assertEquals($market, $account);
-        $this->assertEquals($account, $trade);
-    }
-
-    public function testClientConstructorAcceptsHttpClient(): void
-    {
-        $client = new BingxClient($this->httpClient);
-        
-        $this->assertInstanceOf(BingxClient::class, $client);
+        $this->assertSame($this->httpClient, $this->client->getHttpClient());
     }
 }

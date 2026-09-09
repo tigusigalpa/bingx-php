@@ -24,6 +24,40 @@ class MarketService
     }
 
     /**
+     * Get all perpetual contract specifications, including BingX TradFi
+     * instruments when available to the API key.
+     */
+    public function getTradFiSymbols(?string $assetType = null): array
+    {
+        $params = [];
+        if ($assetType !== null) {
+            $params['assetType'] = $assetType;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v2/quote/contracts', $params);
+    }
+
+    public function getStockSymbols(): array
+    {
+        return $this->getTradFiSymbols('STOCK');
+    }
+
+    public function getForexSymbols(): array
+    {
+        return $this->getTradFiSymbols('FOREX');
+    }
+
+    public function getCommoditySymbols(): array
+    {
+        return $this->getTradFiSymbols('COMMODITY');
+    }
+
+    public function getIndexSymbols(): array
+    {
+        return $this->getTradFiSymbols('INDEX');
+    }
+
+    /**
      * Get spot trading symbols
      * 
      * Response includes:
@@ -529,7 +563,7 @@ class MarketService
         if ($startTime) $params['startTime'] = $startTime;
         if ($endTime) $params['endTime'] = $endTime;
 
-        return $this->client->request('GET', '/openApi/swap/v3/market/openInterest/history', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/market/openInterest/history', $params);
     }
 
     /**
@@ -566,6 +600,19 @@ class MarketService
     }
 
     /**
+     * Get the best bid/ask for one (or all) spot symbols.
+     */
+    public function getSpotBookTicker(?string $symbol = null): array
+    {
+        $params = [];
+        if ($symbol !== null) {
+            $params['symbol'] = $symbol;
+        }
+
+        return $this->client->request('GET', '/openApi/spot/v1/market/bookTicker', $params);
+    }
+
+    /**
      * Get index price (API v3)
      * 
      * Returns index price for a symbol.
@@ -575,7 +622,7 @@ class MarketService
      */
     public function getIndexPrice(string $symbol): array
     {
-        return $this->client->request('GET', '/openApi/swap/v3/market/index', [
+        return $this->client->request('GET', '/openApi/swap/v2/market/indexPrice', [
             'symbol' => $symbol
         ]);
     }
@@ -595,6 +642,6 @@ class MarketService
             $params['symbol'] = $symbol;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v3/market/ticker/price', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/market/ticker/price', $params);
     }
 }

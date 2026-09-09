@@ -28,11 +28,6 @@ class BaseHttpClient
         'https://open-api-vst.bingx.com' => 'https://open-api-vst.bingx.pro',
     ];
     
-    /**
-     * Default source key required by BingX API
-     */
-    protected const DEFAULT_SOURCE_KEY = 'BX-AI-SKILL';
-
     public function __construct(
         string $apiKey, 
         string $apiSecret, 
@@ -44,8 +39,12 @@ class BaseHttpClient
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
         $this->baseUri = rtrim($baseUri, '/');
-        $this->sourceKey = $sourceKey ?? self::DEFAULT_SOURCE_KEY;
-        $this->signatureEncoding = $signatureEncoding;
+        $this->sourceKey = $sourceKey ?? '';
+        // BingX verifies lowercase hexadecimal HMAC-SHA256 signatures. Keep
+        // base64 as an explicit legacy option, but never select it implicitly.
+        $this->signatureEncoding = strtolower($signatureEncoding) === 'base64'
+            ? 'base64'
+            : 'hex';
         $this->http = $http ?: new Client([
             'timeout' => 30,
             'connect_timeout' => 10,
@@ -57,11 +56,97 @@ class BaseHttpClient
         return (string)floor(microtime(true) * 1000);
     }
 
-    protected function buildQuery(array $params): string
+    /**
+     * Convert an API parameter to the exact scalar representation used for
+     * signing. Arrays and objects are encoded as JSON rather than expanded
+     * into PHP-style bracket notation.
+     */
+    protected function parameterValueToString($value): ?string
     {
-        if (!$params) return '';
-        ksort($params);
-        return http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        if (is_string($value) || is_int($value)) {
+            return (string) $value;
+        }
+
+        if (is_float($value)) {
+            // json_encode uses PHP's round-trip float representation. The
+            // typed spot API accepts decimal strings to avoid this path
+            // altogether for precision-sensitive order values.
+            $json = json_encode($value, JSON_PRESERVE_ZERO_FRACTION);
+            if ($json === false) {
+                throw new \InvalidArgumentException('Unable to encode floating-point request parameter');
+            }
+
+            return $json;
+        }
+
+        if (is_array($value) || is_object($value)) {
+            $json = json_encode($value, JSON_UNESCAPED_SLASHES);
+            if ($json === false) {
+                throw new \InvalidArgumentException('Unable to JSON encode request parameter');
+            }
+
+            return $json;
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Build the raw, sorted canonical string which BingX signs. Do not URL
+     * encode this string: URL encoding before HMAC generation causes a
+     * signature mismatch for batch orders and other JSON-valued parameters.
+     */
+    protected function buildCanonicalQuery(array $params): string
+    {
+        unset($params['signature']);
+        ksort($params, SORT_STRING);
+
+        $parts = [];
+        foreach ($params as $key => $value) {
+            $value = $this->parameterValueToString($value);
+            if ($value !== null) {
+                $parts[] = $key . '=' . $value;
+            }
+        }
+
+        return implode('&', $parts);
+    }
+
+    /**
+     * Build the request query/body and append the signature last. BingX
+     * expects the raw canonical form for form bodies; JSON-valued parameters
+     * are URL-escaped only when placed in a URL query.
+     */
+    protected function buildSignedQuery(array $params, string $signature, bool $forUrl): string
+    {
+        unset($params['signature']);
+        ksort($params, SORT_STRING);
+
+        $parts = [];
+        foreach ($params as $key => $value) {
+            $value = $this->parameterValueToString($value);
+            if ($value === null) {
+                continue;
+            }
+
+            if ($forUrl && (strpos($value, '[') !== false || strpos($value, '{') !== false)) {
+                $value = urlencode($value);
+            }
+
+            $parts[] = $key . '=' . $value;
+        }
+
+        $parts[] = 'signature=' . urlencode($signature);
+
+        return implode('&', $parts);
     }
 
     protected function signString(string $string): string
@@ -75,11 +160,16 @@ class BaseHttpClient
 
     protected function headers(string $contentType = 'application/x-www-form-urlencoded'): array
     {
-        return [
+        $headers = [
             'X-BX-APIKEY' => $this->apiKey,
-            'X-SOURCE-KEY' => $this->sourceKey,
             'Content-Type' => $contentType,
         ];
+
+        if ($this->sourceKey !== '') {
+            $headers['X-SOURCE-KEY'] = $this->sourceKey;
+        }
+
+        return $headers;
     }
     
     /**
@@ -100,9 +190,9 @@ class BaseHttpClient
         
         // Check for timeout in message
         $message = strtolower($e->getMessage());
-        return str_contains($message, 'timeout') 
-            || str_contains($message, 'timed out')
-            || str_contains($message, 'connection');
+        return strpos($message, 'timeout') !== false
+            || strpos($message, 'timed out') !== false
+            || strpos($message, 'connection') !== false;
     }
 
     protected function handleApiError(array $response): void
@@ -124,10 +214,13 @@ class BaseHttpClient
             case '100002':
             case '100003':
             case '100004':
+            case '100412':
                 throw new AuthenticationException($message, $response);
             case '100005':
+            case '100429':
                 throw new RateLimitException($message, $response);
             case '200001':
+            case '200002':
                 throw new InsufficientBalanceException($message, $response);
             default:
                 throw new ApiException($message, $code, $response);
@@ -154,6 +247,8 @@ class BaseHttpClient
     ): array {
         $method = strtoupper($method);
         
+        unset($params['signature']);
+
         if ($signed) {
             $params['timestamp'] = $params['timestamp'] ?? $this->timestamp();
         }
@@ -192,8 +287,8 @@ class BaseHttpClient
         bool $signed,
         string $bodyType
     ): array {
-        $query = $this->buildQuery($params);
-        $signature = $signed ? $this->signString($query) : null;
+        $canonicalQuery = $this->buildCanonicalQuery($params);
+        $signature = $signed ? $this->signString($canonicalQuery) : null;
         
         $contentType = $bodyType === 'json' 
             ? 'application/json' 
@@ -203,11 +298,9 @@ class BaseHttpClient
         $opts = [RequestOptions::HEADERS => $headers];
         
         if ($method === 'GET' || $method === 'DELETE') {
-            $queryParams = $params;
-            if ($signature) {
-                $queryParams['signature'] = $signature;
-            }
-            $opts[RequestOptions::QUERY] = $queryParams;
+            $opts[RequestOptions::QUERY] = $signed
+                ? $this->buildSignedQuery($params, $signature, true)
+                : $canonicalQuery;
         } else {
             if ($bodyType === 'json') {
                 $bodyParams = $params;
@@ -216,11 +309,9 @@ class BaseHttpClient
                 }
                 $opts[RequestOptions::JSON] = $bodyParams;
             } else {
-                $bodyParams = $params;
-                if ($signature) {
-                    $bodyParams['signature'] = $signature;
-                }
-                $opts[RequestOptions::FORM_PARAMS] = $bodyParams;
+                $opts[RequestOptions::BODY] = $signed
+                    ? $this->buildSignedQuery($params, $signature, false)
+                    : $canonicalQuery;
             }
         }
 
@@ -244,6 +335,9 @@ class BaseHttpClient
         } catch (RequestException $e) {
             $responseBody = $e->hasResponse() ? (string)$e->getResponse()->getBody() : '';
             $responseData = json_decode($responseBody, true, 512, JSON_BIGINT_AS_STRING) ?: [];
+            if ($responseData) {
+                $this->handleApiError($responseData);
+            }
             
             throw new BingxException(
                 "HTTP request failed: " . $e->getMessage(),

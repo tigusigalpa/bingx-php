@@ -15,7 +15,7 @@ class BingxServiceProvider extends ServiceProvider
                 $config['api_secret'] ?? '',
                 $config['base_uri'] ?? 'https://open-api.bingx.com',
                 $config['source_key'] ?? null,
-                $config['signature_encoding'] ?? 'base64'
+                $config['signature_encoding'] ?? 'hex'
             );
         });
         $this->app->alias(BingxClient::class, 'bingx');

@@ -1,7 +1,6 @@
-# BingX PHP SDK
+# BingX PHP/Laravel Client/SDK/Library
 
-![BingX PHP SDK](https://github.com/user-attachments/assets/bc9acf4c-79c7-4e02-bb8d-75f2d8784b29)
-<div align="center">
+![BingX PHP SDK](https://i.postimg.cc/NGK64vQw/bingx-php-laravel-hero.jpg)
 
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-blue?style=flat-square&logo=php)](https://www.php.net/)
 [![Composer](https://img.shields.io/badge/composer-v2-orange?style=flat-square&logo=composer)](https://getcomposer.org/)
@@ -9,10 +8,11 @@
 [![API v3](https://img.shields.io/badge/BingX%20API-v3-success?style=flat-square)](https://bingx-api.github.io/docs-v3/)
 [![GitHub Stars](https://img.shields.io/github/stars/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php)
 [![Latest Release](https://img.shields.io/github/v/release/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php/releases)
-[![Test Coverage](https://img.shields.io/badge/coverage-119%2B%20tests-brightgreen?style=flat-square)](#-testing)
+[![Tests](https://github.com/tigusigalpa/bingx-php/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/bingx-php/actions/workflows/tests.yml)
+[![CodeQL](https://github.com/tigusigalpa/bingx-php/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/bingx-php/actions/workflows/codeql.yml)
+[![Codecov](https://codecov.io/gh/tigusigalpa/bingx-php/branch/main/graph/badge.svg)](https://codecov.io/gh/tigusigalpa/bingx-php)
 
 English | [Русский](README-ru.md)
-</div>
 
 The most complete PHP client for [BingX](https://bingx.com) exchange. Whether you're building a trading bot, need real-time market data, or want to automate your portfolio — we've got you covered.
 
@@ -72,7 +72,7 @@ The most complete PHP client for [BingX](https://bingx.com) exchange. Whether yo
 
 - **HMAC-SHA256 signatures** on every request
 - **Automatic timestamp handling** — no more "timestamp out of recvWindow" errors
-- **Flexible encoding** — base64 or hex, your choice
+- **BingX-compatible signatures** — lowercase hex HMAC-SHA256 by default; base64 remains an explicit legacy option
 - **Replay protection** via recvWindow
 - **Smart exceptions** — know exactly what went wrong
 
@@ -80,7 +80,7 @@ The most complete PHP client for [BingX](https://bingx.com) exchange. Whether yo
 
 - **Fluent interface** — chain methods like a pro
 - **IDE-friendly** — full autocomplete with type hints
-- **Battle-tested** — 119+ tests and counting
+- **Tested** — 44 automated tests, including signature and endpoint regression coverage
 - **Your way** — works with pure PHP or Laravel
 
 ---
@@ -228,10 +228,7 @@ $order = Bingx::trade()->order()
 
 ```php
 use Tigusigalpa\BingX\BingxClient;
-use Tigusigalpa\BingX\Http\BaseHttpClient;
-
-$http = new BaseHttpClient('API_KEY', 'API_SECRET', 'https://open-api.bingx.com');
-$bingx = new BingxClient($http);
+$bingx = new BingxClient('API_KEY', 'API_SECRET');
 
 $price = $bingx->market()->getLatestPrice('BTC-USDT');
 ```
@@ -282,7 +279,7 @@ BINGX_API_KEY=your_api_key_here
 BINGX_API_SECRET=your_api_secret_here
 BINGX_SOURCE_KEY=optional_source_key
 BINGX_BASE_URI=https://open-api.bingx.com
-BINGX_SIGNATURE_ENCODING=base64
+BINGX_SIGNATURE_ENCODING=hex
 ```
 
 ### Getting your API keys
@@ -488,8 +485,6 @@ $markKlines = Bingx::market()->getMarkPriceKlinesV1('BTC-USDT', '1h', 500);
 $tickerPrice = Bingx::market()->getTickerPriceV1('BTC-USDT');
 ```
 
-See detailed examples: [EXAMPLES_QUOTE_API.md](EXAMPLES_QUOTE_API.md)
-
 ---
 
 ### TWAP Orders - Algorithmic Trading
@@ -580,8 +575,6 @@ while (true) {
     sleep(60); // Check every minute
 }
 ```
-
-See detailed examples: [EXAMPLES_TWAP.md](EXAMPLES_TWAP.md)
 
 ---
 
@@ -848,8 +841,9 @@ $coins = Bingx::wallet()->getAllCoinInfo();
 // Spot account balance
 $balance = Bingx::spotAccount()->getBalance();
 
-// Fund balance
-$fundBalance = Bingx::spotAccount()->getFundBalance();
+// Active overview endpoint: all wallets or one wallet type
+$wallets = Bingx::spotAccount()->getAccountOverview();
+$spotWallet = Bingx::spotAccount()->getAccountOverview('SpotFund');
 
 // Universal transfer
 $transfer = Bingx::spotAccount()->universalTransfer(
@@ -881,6 +875,48 @@ $internalTransfer = Bingx::spotAccount()->internalTransfer(
 
 // Get all account balances
 $allBalances = Bingx::spotAccount()->getAllAccountBalances();
+```
+
+### Spot Trading
+
+Spot orders have their own service and endpoints. Use `SpotOrderRequest` for
+LIMIT and MARKET orders when you want client-side validation and exact decimal
+strings; use `createOrder()` for advanced exchange-specific order types.
+
+```php
+use Tigusigalpa\BingX\Services\SpotOrderRequest;
+
+$order = Bingx::spotTrade()->createOrderRequest(new SpotOrderRequest(
+    symbol: 'BTC-USDT',
+    side: 'BUY',
+    type: 'LIMIT',
+    quantity: '0.001',
+    price: '50000.10',
+    timeInForce: 'GTC',
+));
+
+// Atomically cancel and replace a resting order.
+Bingx::spotTrade()->amendOrder(
+    symbol: 'BTC-USDT',
+    cancelOrderId: '123456',
+    cancelClientOrderId: null,
+    cancelReplaceMode: 'STOP_ON_FAILURE',
+    newOrder: new SpotOrderRequest('BTC-USDT', 'BUY', 'LIMIT', '0.001', '49900.00'),
+);
+```
+
+### Demo/VST and TradFi
+
+```php
+use Tigusigalpa\BingX\BingxClient;
+
+// Virtual Simulation Trading uses a VST API key and never production funds.
+$demo = BingxClient::newDemoClient('VST_API_KEY', 'VST_API_SECRET');
+$vstInfo = $demo->trade()->getVst();
+
+// Stock, forex, commodity, and index perpetual instruments.
+$stocks = Bingx::tradFi()->market()->getStockSymbols();
+$tesla = Bingx::tradFi()->market()->getLatestPrice('TSLA-USDT');
 ```
 
 ---

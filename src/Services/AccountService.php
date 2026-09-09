@@ -468,7 +468,7 @@ class AccountService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v3/user/positionRisk', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/user/positionRisk', $params);
     }
 
     /**
@@ -518,7 +518,7 @@ class AccountService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v3/user/income', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/user/income', $params);
     }
 
     /**
@@ -558,7 +558,39 @@ class AccountService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v3/user/commissionHistory', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/user/commissionHistory', $params);
+    }
+
+    /**
+     * Get liquidation and forced-closure order history.
+     */
+    public function getForceOrders(
+        ?string $symbol = null,
+        ?string $autoCloseType = null,
+        ?int $startTime = null,
+        ?int $endTime = null,
+        int $limit = 100,
+        ?int $recvWindow = null
+    ): array {
+        $params = ['limit' => $limit];
+
+        if ($symbol !== null) {
+            $params['symbol'] = $symbol;
+        }
+        if ($autoCloseType !== null) {
+            $params['autoCloseType'] = $autoCloseType;
+        }
+        if ($startTime !== null) {
+            $params['startTime'] = $startTime;
+        }
+        if ($endTime !== null) {
+            $params['endTime'] = $endTime;
+        }
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('GET', '/openApi/swap/v2/user/forceOrders', $params);
     }
 
     /**
@@ -582,7 +614,7 @@ class AccountService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('POST', '/openApi/swap/v3/user/positionSide/dual', $params);
+        return $this->client->request('POST', '/openApi/swap/v2/user/positionSide/dual', $params);
     }
 
     /**
@@ -601,6 +633,15 @@ class AccountService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v3/user/positionSide/dual', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/user/positionSide/dual', $params);
+    }
+
+    /**
+     * Get position mode. Preferred name for new code; getPositionModeV3()
+     * remains available for backward compatibility.
+     */
+    public function getPositionMode(?int $recvWindow = null): array
+    {
+        return $this->getPositionModeV3($recvWindow);
     }
 }

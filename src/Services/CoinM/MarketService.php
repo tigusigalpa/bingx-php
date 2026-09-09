@@ -76,7 +76,7 @@ class MarketService
     /**
      * Get open positions (open interest)
      * 
-     * GET /openApi/cswap/v1/market/openPositions
+     * GET /openApi/cswap/v1/market/openInterest
      * 
      * Returns the total number of open positions for a symbol.
      * Open interest indicates market activity and liquidity.
@@ -90,15 +90,13 @@ class MarketService
      */
     public function getOpenPositions(string $symbol): array
     {
-        return $this->client->request('GET', '/openApi/cswap/v1/market/openPositions', [
-            'symbol' => $symbol
-        ], false);
+        return $this->getOpenInterest($symbol);
     }
 
     /**
      * Get K-line (candlestick) data
      * 
-     * GET /openApi/cswap/v1/market/kline
+     * GET /openApi/cswap/v1/market/klines
      * 
      * Returns historical candlestick data for technical analysis.
      * 
@@ -142,7 +140,7 @@ class MarketService
             $params['endTime'] = $endTime;
         }
         
-        return $this->client->request('GET', '/openApi/cswap/v1/market/kline', $params, false);
+        return $this->client->request('GET', '/openApi/cswap/v1/market/klines', $params, false);
     }
 
     /**
@@ -202,5 +200,51 @@ class MarketService
         }
         
         return $this->client->request('GET', '/openApi/cswap/v1/market/ticker/24hr', $params, false);
+    }
+
+    /**
+     * Get current open interest for a Coin-M contract.
+     */
+    public function getOpenInterest(string $symbol): array
+    {
+        return $this->client->request('GET', '/openApi/cswap/v1/market/openInterest', [
+            'symbol' => $symbol,
+        ], false);
+    }
+
+    /**
+     * Get the current funding rate and premium-index data.
+     */
+    public function getFundingRate(string $symbol): array
+    {
+        return $this->client->request('GET', '/openApi/cswap/v1/market/premiumIndex', [
+            'symbol' => $symbol,
+        ], false);
+    }
+
+    public function getFundingRateHistory(string $symbol, int $limit = 100): array
+    {
+        return $this->client->request('GET', '/openApi/cswap/v1/market/fundingRate', [
+            'symbol' => $symbol,
+            'limit' => $limit,
+        ], false);
+    }
+
+    public function getMarkPrice(string $symbol): array
+    {
+        return $this->getFundingRate($symbol);
+    }
+
+    public function getIndexPrice(string $symbol): array
+    {
+        return $this->getFundingRate($symbol);
+    }
+
+    public function getRecentTrades(string $symbol, int $limit = 100): array
+    {
+        return $this->client->request('GET', '/openApi/cswap/v1/market/trades', [
+            'symbol' => $symbol,
+            'limit' => $limit,
+        ], false);
     }
 }

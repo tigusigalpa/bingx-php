@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 2026-09-09
+
+### Fixed
+- **Authenticated requests** now use BingX-compatible lowercase hexadecimal HMAC-SHA256 signatures by default. The canonical payload is sorted but never URL-encoded before signing, and `signature` is appended last on the wire.
+- Corrected current Swap V2 endpoints for risk, income, commission history, position mode, multi-assets margin, position reversal, auto-margin, TWAP, open-interest history, index price, and ticker price.
+- Corrected Coin-M K-line/open-interest paths and added funding, mark/index price, funding-history, and recent-trade market methods.
+- `SpotAccountService::getFundBalance()` now fails locally because the upstream endpoint is retired; use the active `getAccountOverview()` endpoint instead.
+- HTTP API failures now preserve their original exception chain and map the current `100412`, `100429`, and `200002` response codes to the dedicated authentication, rate-limit, and insufficient-balance exceptions.
+- Restored PHP 7.4 compatibility in the HTTP client and repaired the unit suite, which previously instantiated `BingxClient` with an invalid constructor signature.
+
+### Added
+- **Spot trading** through `Bingx::spotTrade()` / `BingxClient::spotTrade()`: raw and validated LIMIT/MARKET orders, cancellation, cancel-replace, order queries, history, and fills. `SpotOrderRequest` deliberately keeps decimal values as strings.
+- `SpotAccountService::getAccountOverview()` with named account-type constants for the active wallet overview endpoint.
+- **Demo/VST** factory: `BingxClient::newDemoClient($apiKey, $apiSecret)` and `TradeService::getVst()`.
+- **TradFi accessor**: `BingxClient::tradFi()` for stock, forex, commodity, and index perpetuals, plus TradFi symbol helpers on `MarketService`.
+- Regression coverage for signing, signature encoding, demo setup, and client accessors.
+
 ## [2.1.0] - 2026-04-13
 
 ### Added

@@ -13,6 +13,7 @@ use Tigusigalpa\BingX\Services\SpotAccountService;
 use Tigusigalpa\BingX\Services\SubAccountService;
 use Tigusigalpa\BingX\Services\CopyTradingService;
 use Tigusigalpa\BingX\Services\TwapService;
+use Tigusigalpa\BingX\Services\SpotTradeService;
 
 class BingxClient
 {
@@ -27,14 +28,16 @@ class BingxClient
     protected SubAccountService $subAccount;
     protected CopyTradingService $copyTrading;
     protected TwapService $twap;
+    protected SpotTradeService $spotTrade;
     protected ?CoinMClient $coinMClient = null;
+    protected ?TradFiClient $tradFiClient = null;
 
     public function __construct(
         string $apiKey, 
         string $apiSecret, 
         string $baseUri = 'https://open-api.bingx.com', 
         ?string $sourceKey = null, 
-        string $signatureEncoding = 'base64', 
+        string $signatureEncoding = 'hex',
         ?BaseHttpClient $httpClient = null
     ) {
         $this->httpClient = $httpClient ?: new BaseHttpClient(
@@ -55,6 +58,28 @@ class BingxClient
         $this->subAccount = new SubAccountService($this->httpClient);
         $this->copyTrading = new CopyTradingService($this->httpClient);
         $this->twap = new TwapService($this->httpClient);
+        $this->spotTrade = new SpotTradeService($this->httpClient);
+    }
+
+    /**
+     * Create a client for BingX Virtual Simulation Trading (VST).
+     *
+     * VST uses virtual funds while retaining the same service surface as the
+     * production client. Use a VST API key issued by BingX.
+     */
+    public static function newDemoClient(
+        string $apiKey,
+        string $apiSecret,
+        ?string $sourceKey = null,
+        string $signatureEncoding = 'hex'
+    ): self {
+        return new self(
+            $apiKey,
+            $apiSecret,
+            'https://open-api-vst.bingx.com',
+            $sourceKey,
+            $signatureEncoding
+        );
     }
 
     /**
@@ -128,6 +153,14 @@ class BingxClient
     }
 
     /**
+     * Get Spot Trade Service for placing and managing spot orders.
+     */
+    public function spotTrade(): SpotTradeService
+    {
+        return $this->spotTrade;
+    }
+
+    /**
      * Get Sub-Account Service for sub-account management operations
      * 
      * @return SubAccountService
@@ -189,6 +222,19 @@ class BingxClient
         }
         
         return $this->coinMClient;
+    }
+
+    /**
+     * Get the Traditional Finance client for stock, forex, commodity, and
+     * index perpetual instruments.
+     */
+    public function tradFi(): TradFiClient
+    {
+        if ($this->tradFiClient === null) {
+            $this->tradFiClient = new TradFiClient($this->httpClient);
+        }
+
+        return $this->tradFiClient;
     }
 
     /**

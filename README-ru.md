@@ -1,7 +1,6 @@
-# BingX PHP SDK
+# BingX PHP/Laravel Client/SDK/Library
 
-![BingX PHP SDK](https://github.com/user-attachments/assets/bc9acf4c-79c7-4e02-bb8d-75f2d8784b29)
-<div align="center">
+![BingX PHP SDK](https://i.postimg.cc/NGK64vQw/bingx-php-laravel-hero.jpg)
 
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-blue?style=flat-square&logo=php)](https://www.php.net/)
 [![Composer](https://img.shields.io/badge/composer-v2-orange?style=flat-square&logo=composer)](https://getcomposer.org/)
@@ -9,10 +8,11 @@
 [![API v3](https://img.shields.io/badge/BingX%20API-v3-success?style=flat-square)](https://bingx-api.github.io/docs-v3/)
 [![GitHub Stars](https://img.shields.io/github/stars/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php)
 [![Latest Release](https://img.shields.io/github/v/release/tigusigalpa/bingx-php?style=flat-square&logo=github)](https://github.com/tigusigalpa/bingx-php/releases)
-[![Test Coverage](https://img.shields.io/badge/coverage-119%2B%20tests-brightgreen?style=flat-square)](#-тестирование)
+[![Tests](https://github.com/tigusigalpa/bingx-php/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/bingx-php/actions/workflows/tests.yml)
+[![CodeQL](https://github.com/tigusigalpa/bingx-php/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/bingx-php/actions/workflows/codeql.yml)
+[![Codecov](https://codecov.io/gh/tigusigalpa/bingx-php/branch/main/graph/badge.svg)](https://codecov.io/gh/tigusigalpa/bingx-php)
 
 Русский | [English](README.md)
-</div>
 
 Самый полный PHP-клиент для биржи [BingX](https://bingx.com). Строите торгового бота, нужны рыночные данные в реальном времени или хотите автоматизировать портфель? Мы вас прикроем.
 
@@ -72,7 +72,7 @@
 
 - **HMAC-SHA256 подписи** на каждый запрос
 - **Автоматическая обработка timestamp** — забудьте про ошибки "timestamp out of recvWindow"
-- **Гибкое кодирование** — base64 или hex, на ваш выбор
+- **Совместимые с BingX подписи** — hex HMAC-SHA256 по умолчанию; base64 оставлен только как явный legacy-режим
 - **Защита от replay-атак** через recvWindow
 - **Умные исключения** — точно знаете, что пошло не так
 
@@ -80,7 +80,7 @@
 
 - **Fluent интерфейс** — цепочки методов как у профи
 - **Дружит с IDE** — полное автодополнение с типами
-- **Проверено в бою** — 119+ тестов и это не предел
+- **Покрыто тестами** — 44 автоматизированных теста, включая регрессию подписей и endpoint’ов
 - **Как вам удобно** — работает с чистым PHP или Laravel
 
 ---
@@ -228,10 +228,7 @@ $order = Bingx::trade()->order()
 
 ```php
 use Tigusigalpa\BingX\BingxClient;
-use Tigusigalpa\BingX\Http\BaseHttpClient;
-
-$http = new BaseHttpClient('API_KEY', 'API_SECRET', 'https://open-api.bingx.com');
-$bingx = new BingxClient($http);
+$bingx = new BingxClient('API_KEY', 'API_SECRET');
 
 $price = $bingx->market()->getLatestPrice('BTC-USDT');
 ```
@@ -282,7 +279,7 @@ BINGX_API_KEY=your_api_key_here
 BINGX_API_SECRET=your_api_secret_here
 BINGX_SOURCE_KEY=optional_source_key
 BINGX_BASE_URI=https://open-api.bingx.com
-BINGX_SIGNATURE_ENCODING=base64
+BINGX_SIGNATURE_ENCODING=hex
 ```
 
 ### Получение API ключей
@@ -514,8 +511,9 @@ $coins = Bingx::wallet()->getAllCoinInfo();
 // Баланс спотового аккаунта
 $balance = Bingx::spotAccount()->getBalance();
 
-// Баланс фонда
-$fundBalance = Bingx::spotAccount()->getFundBalance();
+// Актуальный endpoint: все кошельки или один выбранный тип
+$wallets = Bingx::spotAccount()->getAccountOverview();
+$spotWallet = Bingx::spotAccount()->getAccountOverview('SpotFund');
 
 // Универсальный перевод
 $transfer = Bingx::spotAccount()->universalTransfer(
@@ -542,6 +540,49 @@ $internalTransfer = Bingx::spotAccount()->internalTransfer(
 
 // Получить балансы всех аккаунтов
 $allBalances = Bingx::spotAccount()->getAllAccountBalances();
+```
+
+### Спотовая торговля
+
+У спотовых ордеров отдельный сервис и отдельные endpoints. Для LIMIT и MARKET
+используйте `SpotOrderRequest`: он валидирует параметры локально и сохраняет
+десятичные значения строками. Для расширенных типов ордеров используйте
+`createOrder()` с параметрами BingX.
+
+```php
+use Tigusigalpa\BingX\Services\SpotOrderRequest;
+
+$order = Bingx::spotTrade()->createOrderRequest(new SpotOrderRequest(
+    symbol: 'BTC-USDT',
+    side: 'BUY',
+    type: 'LIMIT',
+    quantity: '0.001',
+    price: '50000.10',
+    timeInForce: 'GTC',
+));
+
+// Атомарно отменить и заменить открытый ордер.
+Bingx::spotTrade()->amendOrder(
+    symbol: 'BTC-USDT',
+    cancelOrderId: '123456',
+    cancelClientOrderId: null,
+    cancelReplaceMode: 'STOP_ON_FAILURE',
+    newOrder: new SpotOrderRequest('BTC-USDT', 'BUY', 'LIMIT', '0.001', '49900.00'),
+);
+```
+
+### Demo/VST и TradFi
+
+```php
+use Tigusigalpa\BingX\BingxClient;
+
+// Virtual Simulation Trading использует VST API key и не затрагивает реальные средства.
+$demo = BingxClient::newDemoClient('VST_API_KEY', 'VST_API_SECRET');
+$vstInfo = $demo->trade()->getVst();
+
+// Акции, forex, commodities и индексы в perpetual-контрактах.
+$stocks = Bingx::tradFi()->market()->getStockSymbols();
+$tesla = Bingx::tradFi()->market()->getLatestPrice('TSLA-USDT');
 ```
 
 ---

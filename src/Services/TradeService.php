@@ -1108,7 +1108,7 @@ class TradeService
         if ($startTime) $params['startTime'] = $startTime;
         if ($endTime) $params['endTime'] = $endTime;
 
-        return $this->client->request('GET', '/openApi/swap/v2/trade/forceOrders', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/user/forceOrders', $params);
     }
 
     /**
@@ -1333,7 +1333,7 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('POST', '/openApi/swap/v3/trade/multiAssetsMode', $params);
+        return $this->client->request('POST', '/openApi/swap/v2/trade/multiAssetsMode', $params);
     }
 
     /**
@@ -1352,7 +1352,7 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v3/trade/multiAssetsMode', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/trade/multiAssetsMode', $params);
     }
 
     /**
@@ -1371,7 +1371,7 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v3/trade/multiAssetsRules', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/trade/multiAssetsRules', $params);
     }
 
     /**
@@ -1390,7 +1390,7 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v3/trade/multiAssetsMargin', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/trade/multiAssetsMargin', $params);
     }
 
     /**
@@ -1414,7 +1414,7 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('POST', '/openApi/swap/v3/trade/positionReverse', $params);
+        return $this->client->request('POST', '/openApi/swap/v2/trade/oneClickReversePosition', $params);
     }
 
     /**
@@ -1446,7 +1446,7 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('POST', '/openApi/swap/v3/trade/autoAddMargin', $params);
+        return $this->client->request('POST', '/openApi/swap/v2/trade/autoAddMargin', $params);
     }
 
     /**
@@ -1472,6 +1472,19 @@ class TradeService
             $params['recvWindow'] = $recvWindow;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v3/trade/autoAddMargin', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/trade/autoAddMargin', $params);
+    }
+
+    /**
+     * Get Virtual Simulation Trading (VST) information for a demo client.
+     */
+    public function getVst(?int $recvWindow = null): array
+    {
+        $params = [];
+        if ($recvWindow !== null) {
+            $params['recvWindow'] = $recvWindow;
+        }
+
+        return $this->client->request('POST', '/openApi/swap/v2/trade/getVst', $params);
     }
 }

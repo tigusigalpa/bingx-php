@@ -1,0 +1,115 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, curl
+          coverage: none
+          tools: composer:v2
+
+      - name: Restore Composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-php-8.3-${{ hashFiles('composer.json') }}
+          restore-keys: composer-${{ runner.os }}-php-8.3-
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-progress --no-interaction
+
+      - name: Validate Composer metadata
+        run: composer validate --strict
+
+      - name: Check PHP syntax
+        run: find src tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Audit dependencies
+        run: composer audit --no-interaction
+
+  test:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.2', '8.3', '8.4']
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, dom, curl
+          coverage: none
+          tools: composer:v2
+
+      - name: Restore Composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-php-${{ matrix.php }}-${{ hashFiles('composer.json') }}
+          restore-keys: composer-${{ runner.os }}-php-${{ matrix.php }}-
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-progress --no-interaction
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit
+
+  coverage:
+    name: Coverage (PHP 8.3)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up PHP with PCOV
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, curl
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Restore Composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-php-8.3-${{ hashFiles('composer.json') }}
+          restore-keys: composer-${{ runner.os }}-php-8.3-
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-progress --no-interaction
+
+      - name: Generate Clover report
+        run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: build/logs/clover.xml
+          flags: php
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}

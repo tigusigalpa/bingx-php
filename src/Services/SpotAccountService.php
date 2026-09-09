@@ -6,6 +6,15 @@ use Tigusigalpa\BingX\Http\BaseHttpClient;
 
 class SpotAccountService
 {
+    public const ACCOUNT_TYPE_SPOT_FUND = 'SpotFund';
+    public const ACCOUNT_TYPE_STD_FUTURES = 'StdFutures';
+    public const ACCOUNT_TYPE_COIN_M_PERP = 'CoinMPerp';
+    public const ACCOUNT_TYPE_USDT_M_PERP = 'USDTMPerp';
+    public const ACCOUNT_TYPE_COPY_TRADING = 'CopyTrading';
+    public const ACCOUNT_TYPE_GRID = 'Grid';
+    public const ACCOUNT_TYPE_WEALTH = 'Wealth';
+    public const ACCOUNT_TYPE_C2C = 'C2C';
+
     protected BaseHttpClient $client;
 
     public function __construct(BaseHttpClient $client)
@@ -151,13 +160,12 @@ class SpotAccountService
     }
 
     /**
-     * Get fund account balance
-     * 
-     * @return array
+     * @deprecated BingX retired the fund-balance endpoint. Use
+     *             getAccountOverview() instead.
      */
     public function getFundBalance(): array
     {
-        return $this->client->request('GET', '/openApi/fund/v1/account/balance');
+        throw new \BadMethodCallException('getFundBalance is retired; use getAccountOverview instead');
     }
 
     /**
@@ -195,6 +203,19 @@ class SpotAccountService
      */
     public function getAllAccountBalances(): array
     {
-        return $this->client->request('GET', '/openApi/account/v1/allAccountBalance');
+        return $this->getAccountOverview();
+    }
+
+    /**
+     * Get wallet balances for all account types or one selected account type.
+     */
+    public function getAccountOverview(?string $accountType = null): array
+    {
+        $params = [];
+        if ($accountType !== null) {
+            $params['accountType'] = $accountType;
+        }
+
+        return $this->client->request('GET', '/openApi/account/v1/allAccountBalance', $params);
     }
 }

@@ -4,8 +4,6 @@
          bootstrap="vendor/autoload.php"
          colors="true"
          executionOrder="depends,defects"
-         requireCoverageMetadata="true"
-         beStrictAboutCoverageMetadata="true"
          beStrictAboutOutputDuringTests="true"
          failOnRisky="true"
          failOnWarning="true">

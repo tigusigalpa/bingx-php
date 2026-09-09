@@ -146,15 +146,11 @@ class OrderBuilder
     }
 
     /**
-     * Set order quantity for spot trading
+     * Set order quantity. BingX uses quantity for both spot and perpetual
+     * orders; keeping it available in both modes also matches the REST API.
      */
     public function quantity(float $quantity): self
     {
-        if ($this->orderType !== 'spot') {
-            $this->addError("Quantity only available for spot orders. Use margin() for futures.");
-            return $this;
-        }
-        
         if ($quantity <= 0) {
             $this->addError("Quantity must be greater than 0");
             return $this;
@@ -188,8 +184,8 @@ class OrderBuilder
      */
     public function price(float $price): self
     {
-        if (!isset($this->orderData['type']) || !in_array($this->orderData['type'], ['LIMIT', 'STOP'])) {
-            $this->addError("Price only available for LIMIT or STOP orders");
+        if (!isset($this->orderData['type']) || !in_array($this->orderData['type'], ['LIMIT', 'STOP', 'TRIGGER_LIMIT'], true)) {
+            $this->addError("Price only available for LIMIT, STOP, or TRIGGER_LIMIT orders");
             return $this;
         }
         

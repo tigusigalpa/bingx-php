@@ -31,7 +31,7 @@ class TwapService
      */
     public function createOrder(array $params): array
     {
-        return $this->client->request('POST', '/openApi/swap/v1/trade/order/twap', $params);
+        return $this->client->request('POST', '/openApi/swap/v2/trade/twapOrder', $params);
     }
 
     /**
@@ -107,7 +107,7 @@ class TwapService
      */
     public function cancelOrder(string $orderId, string $symbol): array
     {
-        return $this->client->request('DELETE', '/openApi/swap/v1/trade/order/twap', [
+        return $this->client->request('DELETE', '/openApi/swap/v2/trade/twapOrder', [
             'orderId' => $orderId,
             'symbol' => $symbol,
         ]);
@@ -127,7 +127,7 @@ class TwapService
             $params['symbol'] = $symbol;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v1/trade/openOrders/twap', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/trade/twapOrders', $params);
     }
 
     /**
@@ -157,7 +157,7 @@ class TwapService
             $params['endTime'] = $endTime;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v1/trade/historyOrders/twap', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/trade/twapOrders', $params);
     }
 
     /**
@@ -168,7 +168,7 @@ class TwapService
      */
     public function getOrderDetail(string $orderId): array
     {
-        return $this->client->request('GET', '/openApi/swap/v1/trade/order/twap', [
+        return $this->client->request('GET', '/openApi/swap/v2/trade/twapOrder', [
             'orderId' => $orderId,
         ]);
     }
@@ -205,6 +205,6 @@ class TwapService
             $params['endTime'] = $endTime;
         }
 
-        return $this->client->request('GET', '/openApi/swap/v1/trade/allOrders/twap', $params);
+        return $this->client->request('GET', '/openApi/swap/v2/trade/twapOrders', $params);
     }
 }

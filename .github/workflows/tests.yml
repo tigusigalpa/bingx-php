@@ -104,7 +104,7 @@ jobs:
         run: composer update --prefer-dist --no-progress --no-interaction
 
       - name: Generate Clover report
-        run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+        run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml --coverage-text
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v6

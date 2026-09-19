@@ -1,0 +1,26 @@
+coverage:
+  range: 70..80
+  precision: 2
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 0%
+        flags:
+          - php
+        paths:
+          - src
+    patch:
+      default:
+        target: 90%
+        threshold: 0%
+        flags:
+          - php
+        paths:
+          - src
+
+comment:
+  layout: "diff, flags, files"
+  require_changes: true
+  require_base: true
+  require_head: true
